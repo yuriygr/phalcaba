@@ -1,0 +1,12 @@
+<?php
+$i = 1;
+$bc = count($boards);
+foreach ( $boards as $b ) {
+    echo Phalcon\Tag::linkTo([
+        $this->url->get([ 'for' => 'board-link', 'board' => $b->slug ]), 
+        $b->slug,
+        'title' => $b->name
+    ]);
+    if ( $i != $bc ) echo " / ";
+    $i++;
+} ?>

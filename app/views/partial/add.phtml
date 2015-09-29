@@ -1,0 +1,24 @@
+<?php use Phalcon\Tag as Tag; ?>
+
+<?php $form_name = (isset($thread_id) && $thread_id != 0) ? 'Ответ в тред' : 'Cоздать тред'; ?>
+
+<?= Tag::form([ $this->url->get([ 'for' => 'add-link' ]), 'class' => 'form', 'data-ajax' => 'true' ]) ?>
+
+	<input type="hidden" name="board_slug" value="<?= $board_slug; ?>" />
+	<input type="hidden" name="thread_id"  value="<?= $thread_id; ?>" />
+	
+	<p class="form-name"><?= $form_name; ?></p>
+	
+	<div class="form-control">
+		<input class="input" type="text" id="kasumi" name="kasumi" placeholder="Тема" tabindex="1" />
+		<input class="btn" type="submit" id="submit" name="submit" value="Отправить" tabindex="3" />
+	</div>
+
+	<div class="form-control">
+		<textarea name="shampoo" id="shampoo" rows="10" placeholder="Пост" tabindex="2"></textarea>
+	</div>
+
+	<!--div class="checkbox">
+		<label><input type="checkbox" name="sage" value="sage"> Sage не работает</label>
+	</div-->
+<?= Tag::endForm() ?>

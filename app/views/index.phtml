@@ -1,0 +1,34 @@
+<?php use Phalcon\Tag as Tag ?>
+<?= Tag::getDocType(); ?>
+<html lang="ru">
+<head>
+	<meta charset="utf-8">
+	<?= $this->tag->getTitle(); ?>
+	<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+	<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+	<meta name="HandheldFriendly" content="true">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<?= $this->assets->outputCss(); ?>
+</head>
+<body>
+
+<header>
+	<?= Tag::linkTo([ $this->url->get([ 'for' => 'home-link' ]),  $this->config->site->title, 'class' => 'logo' ]); ?>
+	<span class="list">
+		<?php $this->partial("partial/boards_list"); ?>
+	</span>
+	<span class="menu">
+		<?= Tag::linkTo([ $this->url->get([ 'for' => 'faq-link' ]),  'faq' ]); ?>
+		/
+		<?= Tag::linkTo([ $this->url->get([ 'for' => 'rules-link' ]),  'rules' ]); ?>
+	</span>
+	<div class="clear"></div>
+</header>
+
+<?= $this->getContent() ?>
+
+
+<?= $this->assets->outputJs(); ?>
+
+</body>
+</html>

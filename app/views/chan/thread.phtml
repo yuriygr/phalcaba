@@ -1,0 +1,15 @@
+<?php use Phalcon\Tag as Tag; ?>
+
+<div class="thread-box" data-type="thread-<?= $thread->id?>">
+    <?php
+        $this->partial("partial/thread", [ 'thread' => $thread, 'open' => true ]);
+        foreach ($thread->getReply() as $post)
+            $this->partial("partial/post", [ 'post' => $post]);
+    ?>
+</div>
+<hr>
+
+<div class="board-nav">
+    <span><?= Tag::linkTo([ $this->url->get([ 'for' => 'board-link', 'board' => $thread->board ]), 'Назад' ]); ?></span>
+    <span><?= Tag::linkTo([ '#up', 'Вверх' , 'local' => false]); ?></span>
+</div>

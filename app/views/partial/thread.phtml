@@ -1,0 +1,20 @@
+<div class="post thread" id="<?= $thread->id; ?>">
+    <div class="post-info">
+        <?php if($thread->subject) { ?>
+            <span class="subject"><?= $thread->subject; ?></span>
+        <? } ?>
+        <span class="name"><?= $thread->name; ?></span>
+        <span class="time"><?= $thread->time; ?></span>
+        <span class="link"><?= $thread->link; ?></span>
+        <?php if($open == false) { ?>
+            <span class="open"><?= $thread->open; ?></span>
+         <? } ?>
+    </div>
+    <div class="post-text">
+        <?= $thread->text; ?>
+    </div>
+    <?php if($thread->replies > $this->config->site->replyLimit && $open == false) { ?>
+        <div class="omitted"><?= $this->tag->getOmitted($thread->replies - $this->config->site->replyLimit); ?></div>
+    <? } ?>
+</div>
+<div class="clear"></div>

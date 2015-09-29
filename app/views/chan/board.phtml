@@ -1,0 +1,37 @@
+<?php use Phalcon\Tag as Tag; ?>
+
+<?php foreach ($threads->items as $thread) { ?>
+	<div class="thread-box" data-type="thread-<?= $thread->id?>">
+		<?php 
+			$this->partial("partial/thread", [ 'thread' => $thread, 'open' => false ]);
+			foreach ($thread->getReply($this->config->site->replyLimit) as $post)
+	            $this->partial("partial/post", [ 'post' => $post ]);
+		?>
+	</div>
+	<hr>
+<?php } ?>
+
+
+<div class="board-nav">
+	<?php if ($threads->first != $threads->total_pages) { ?>
+		<span class="pagination">
+		<?php if ($threads->current != $threads->first)
+			echo Tag::linkTo([
+				$this->url->get([ 'for' => 'page-link', 'board' => $board->slug, 'page' => $threads->before ]),
+				'Предыдущая',
+				'class' => 'btn',
+				'rel' => 'prev' 
+			]); ?>
+	
+		<?php if ($threads->current != $threads->last)
+			echo Tag::linkTo([
+				$this->url->get([ 'for' => 'page-link', 'board' => $board->slug, 'page' => $threads->next ]),
+				'Следующая',
+				'class' => 'btn',
+				'rel' => 'next'
+			]); ?>
+		</span>
+	<?php } ?>
+	<span><?= Tag::linkTo([ $this->url->get([ 'for' => 'catalog-link', 'board' => $thread->board ]), 'Каталог' ]); ?></span>
+	<span><?= Tag::linkTo([ '#up', 'Вверх' , 'local' => false]); ?></span>
+</div>

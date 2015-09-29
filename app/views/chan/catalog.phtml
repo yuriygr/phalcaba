@@ -1,0 +1,5 @@
+<?php use Phalcon\Tag as Tag; ?>
+
+<?php foreach ($threads as $thread)
+		$this->partial("partial/catalog", [ 'thread' => $thread ]);
+?>

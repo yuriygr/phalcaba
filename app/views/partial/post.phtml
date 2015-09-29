@@ -1,0 +1,14 @@
+<div class="post reply" id="<?= $post->id; ?>">
+    <div class="post-info">
+        <?php if ($post->subject) { ?>
+            <span class="subject"><?= $post->subject; ?></span>
+        <? } ?>
+        <span class="name"><?= $post->name; ?></span>
+        <span class="time"><?= $post->time; ?></span>
+        <span class="link"><?= $post->link; ?></span>
+    </div>
+    <div class="post-text">
+       <?= $post->text; ?>
+    </div>
+</div>
+<div class="clear"></div>
