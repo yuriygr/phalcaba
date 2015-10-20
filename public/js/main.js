@@ -1,3 +1,12 @@
+function scrollToPost(id) {
+	return $('html, body').animate({ 'scrollTop': $('.post#' + id).offset().top });
+}
+function insert(text) {
+	var form = $('#shampoo');
+	form.val(form.val() + text);
+	form.focus();
+	return false;
+}
 $(document).ready(function() {
 	/* Ajax forms
 	========================================================= */
@@ -22,8 +31,6 @@ $(document).ready(function() {
 				alert('Ошибка. Непредвиденная ошабка');
 			}
 		});
-		console.log('Адрес формы: '+action);
-		console.log('Дата: '+data);
 	});
 	/* Scroll To Top/Bottom/Post
 	========================================================= */
@@ -35,7 +42,20 @@ $(document).ready(function() {
 		$('html, body').animate({ 'scrollTop': $(document).height() });
 		return false;
 	});
-	function scrollToPost(num) {
-	    $('html, body').animate({ 'scrollTop': $('.post#-' + num).offset().top });
-	}
+	$('a[data-num]').click(function() {
+		scrollToPost( $(this).attr('data-num') );
+		return false;
+	});
+	/* Нажатия
+	========================================================= */	
+	$('a[data-reflink]').click(function() {
+		insert( '>>' + $(this).attr('data-reflink') + '\n' );
+		return false;
+	});
+	$('a[data-expand]').click(function() {
+		//$(this).children('img').attr('src', $(this).attr('href'));
+		
+		alert( $(this).attr('href') );
+		return false;
+	});
 });

@@ -10,14 +10,18 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<?= $this->assets->outputCss(); ?>
 </head>
-<body>
+<body class='fixheader'>
 
 <header>
-	<?= Tag::linkTo([ $this->url->get([ 'for' => 'home-link' ]),  $this->config->site->title, 'class' => 'logo' ]); ?>
+	<span class="logo">
+		<?= Tag::linkTo([ $this->url->get([ 'for' => 'home-link' ]),  $this->config->site->title ]); ?>
+	</span>
 	<span class="list">
 		<?php $this->partial("partial/boards_list"); ?>
 	</span>
 	<span class="menu">
+		<a href="/adminer.php?server=0.0.0.0&amp;username=yuriygr&amp;db=c9">a</a>
+		/
 		<?= Tag::linkTo([ $this->url->get([ 'for' => 'faq-link' ]),  'faq' ]); ?>
 		/
 		<?= Tag::linkTo([ $this->url->get([ 'for' => 'rules-link' ]),  'rules' ]); ?>

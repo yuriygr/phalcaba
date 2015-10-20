@@ -1,20 +1,35 @@
 <div class="post thread" id="<?= $thread->id; ?>">
     <div class="post-info">
-        <?php if($thread->subject) { ?>
+        <?php if ($thread->subject) { ?>
             <span class="subject"><?= $thread->subject; ?></span>
         <? } ?>
         <span class="name"><?= $thread->name; ?></span>
         <span class="time"><?= $thread->time; ?></span>
         <span class="link"><?= $thread->link; ?></span>
-        <?php if($open == false) { ?>
+        <?php if ($thread->isLocked) { ?>
+            <span class="status">Закрыт</span>
+        <? } ?>
+        <?php if ($open == false) { ?>
             <span class="open"><?= $thread->open; ?></span>
          <? } ?>
     </div>
+    
+    <?php if ($thread->getFiles()) { ?>
+        <div class="post-file left">
+        <?php foreach ($thread->getFiles() as $file) { ?>
+            <a href="<?= $file->getLink('origin'); ?>" target="_blank" data-expand="true">
+                <img src="<?= $file->getLink('thumb'); ?>" alt="file-<?= $file->type; ?>-<?= $file->id; ?>">
+                <span class="file-info">(1230x790) <?= $file->type; ?></span>
+            </a>
+        <? } ?>
+        </div>
+    <? } ?>
+    
     <div class="post-text">
         <?= $thread->text; ?>
     </div>
-    <?php if($thread->replies > $this->config->site->replyLimit && $open == false) { ?>
-        <div class="omitted"><?= $this->tag->getOmitted($thread->replies - $this->config->site->replyLimit); ?></div>
-    <? } ?>
 </div>
+<?php if ($thread->replies > $this->config->site->replyLimit && $open == false ) { ?>
+    <div class="omitted"><?= $this->tag->getOmitted($thread->replies - $this->config->site->replyLimit); ?></div>
+<? } ?>
 <div class="clear"></div>

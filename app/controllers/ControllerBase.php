@@ -39,9 +39,6 @@ class ControllerBase extends \Phalcon\Mvc\Controller
 		$this->response->setJsonContent($array);
 		return false;
 	}
-	/*
-	 * Таки тут все понятно
-	 */
 	public function _returnNotFound()
 	{
 		return $this->dispatcher->forward([

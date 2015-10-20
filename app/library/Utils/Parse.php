@@ -27,12 +27,11 @@ class Parse {
 	 ================================== */	
 	function MakePostLink($buffer) {
 		/* Ссылка в пределе раздела */
-		//$buffer = preg_replace_callback('/&gt;&gt;([r]?[l]?[f]?[q]?[0-9,\-,\,]+)/', array(&$this, 'InterthreadQuoteCheck'), $buffer);
+		$buffer = preg_replace_callback('/&gt;&gt;([r]?[l]?[f]?[q]?[0-9,\-,\,]+)/', array(&$this, 'InterthreadQuoteCheck'), $buffer);
 
 		return $buffer;
 	}
 	function InterthreadQuoteCheck($matches) {
-
 		$lastchar = '';
 		// If the quote ends with a , or -, cut it off.
 		if(substr($matches[0], -1) == "," || substr($matches[0], -1) == "-") {
@@ -40,19 +39,20 @@ class Parse {
 			$matches[1] = substr($matches[1], 0, -1);
 			$matches[0] = substr($matches[0], 0, -1);
 		}
+		
+		$url =  \Phalcon\DI\FactoryDefault::getDefault()->getShared('url');
+		$post = \Post::findFirstById($matches[1]);
 
-        $modelsManager =  \Phalcon\DI\FactoryDefault::getDefault()->getShared('modelsManager');
-        
-		$query = $modelsManager->createQuery("SELECT * FROM Post WHERE id = :id:");
-		$post = $query->execute(array(
-		    'id' => $matches[1]
-		));
-		
-		$return = $post->link.$lastchar;
-		
-		return $return;
+		if ( $post )
+		    $link = \Phalcon\Tag::linkTo([
+		    	$url->get([ 'for' => 'thread-link', 'board' => $post->board, 'id' => ($post->parent == 0 ? $post->id : $post->parent) ]).'#'.$post->id,
+		    	'>>' . $post->id . ($post->parent == 0 ? ' (OP)' : '')
+		    ]);
+		else
+			$link = ">>".$matches[1];
+			
+		return $link.$lastchar;
 	}
-
 	
 	/* ББ коды
 	 ================================== */
@@ -87,7 +87,7 @@ class Parse {
 		return $string;
 	}
 	function code_callback($matches) {
-		$return = '<pre><code>'	. str_replace('<br />', '', $matches[1]) .'</code></pre>';
+		$return = '<pre><code>'	. str_replace('<br />', '', $matches[1]) . '</code></pre>';
 		
 		return $return;
 	}
@@ -102,11 +102,10 @@ class Parse {
 
 		$buffer_temp = str_replace(" ", "", $buffer_temp);
 		
-		if ($buffer_temp=="") {
+		if ($buffer_temp=="")
 			return "";
-		} else {
+		else
 			return $buffer;
-		}
 	}
 
 	function Make($message) {

@@ -38,11 +38,37 @@ p {
   -webkit-user-select: none;
   cursor: default;
 }
+.index-logo:after {
+  content: attr(data-text);
+  position: absolute;
+  left: 2px;
+  text-shadow: -1px 0 red;
+  top: 0;
+  color: white;
+  background: #252525;
+  overflow: hidden;
+  clip: rect(0, 900px, 0, 0);
+  animation: noise-anim 2s infinite linear alternate-reverse;
+}
+.index-logo:before {
+  content: attr(data-text);
+  position: absolute;
+  left: -2px;
+  text-shadow: 1px 0 blue;
+  top: 0;
+  color: white;
+  background: #252525;
+  overflow: hidden;
+  clip: rect(0, 900px, 0, 0);
+  animation: noise-anim-2 3s infinite linear alternate-reverse;
+}
 
 
-/* Шапка
+
+
+/* Header
  ================================== */
-body.fixheader { margin-top: 51px;}
+body.fixheader { margin-top: 40px; }
 body.fixheader header {
     background: #252525;
     box-shadow: 0px 1px 1px #202020;
@@ -50,20 +76,7 @@ body.fixheader header {
     left: 0;
     right: 0;
     top: 0;
-    padding: 5px 10px;
-}
-header a.logo {
-    background: #202020;
-    color: #fff;
-    border: 1px solid #383838;
-    text-decoration: none;
-    font-weight: 200;
-    display: inline-block;
-    padding: 5px 10px;
-    -webkit-border-radius: 4px;
-    -moz-border-radius: 4px;
-    -o-border-radius: 4px;
-    border-radius: 4px;
+    z-index: 66660;
 }
 header span {
 	color: #383838;
@@ -80,36 +93,30 @@ header span a {
 
 
 
-/* Борда
+/* Form
  ================================== */
 .form-name {
-    color: #aaa;
     text-align: center;
     display: block;
 }
-/* Имя раздела */
 .board-name { text-align: center; }
 .board-name a { color: #fff; }
-/* Описание раздела */
 .board-desc {
     font-size: 12px;
     color: #aaa;
     display: block;
 }
-/* Форма ответа */
 .board-add {
     width: 600px;
     margin: 0 auto;
+    color: #aaa;
 }
 .board-add #kasumi { width: 510px; }
 .board-add #submit { width: 86px; }
-/* Постраничная навигация */
-.board-pagination {
-    color: #aaa;
-}
+.board-pagination { color: #aaa; }
 
 
-/* Страницы
+/* Page
  ================================== */
 .page {
     width: 900px;
@@ -128,7 +135,7 @@ header span a {
 }
 
 
-/* Пост и тред
+/* Post/Thread
  ================================== */
 .post {
     background: #202020;
@@ -146,6 +153,7 @@ header span a {
     border: none;
     padding: 5px 0;
 }
+/* Posr Info */
 .post-info {
     color: #AAA;
     font-size: .8em;
@@ -156,13 +164,40 @@ header span a {
 }
 .post-info a { color: #aaa; }
 .post-info a:hover { color: #09C; text-decoration: none; }
-.post-text { margin: 5px 0; word-break: break-word; }
+/* Posr File */
+.post-file {
+    display: inline-block;
+    vertical-align: top;
+    margin-right: 10px;
+}
+.post-file a {
+    display: inline-block;
+    line-height: 1;
+    position: relative;
+    vertical-align: top;
+}
+.post-file a img {
+    display: block;
+}
+.post-file a .file-info {
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    font-size: 10px;
+    background: rgba(0, 0, 0, 0.62);
+    color: #fff;
+    padding: 2px 7px;
+}
+/* Post Text */
+.post-text { margin: 5px 0; word-break: break-word; display: block; overflow: auto; }
 .post-text p { margin: 0 0 3px 0; }
+
 .subject {
     color: #09C;
     font-size: 1rem;
     font-weight: bold;
 }
+.sage { opacity: .6; }
 .omitted {
     color: #AAA;
     font-size: .8em;
@@ -171,16 +206,27 @@ header span a {
 /* MarkUp */
 .spoiler { background: #383838; color: #383838; }
 .spoiler:hover { color: #fff; }
-.quote { color: #9C0; }
+.quote { color: #789922; }
 .underline { text-decoration: underline; }
+pre {
+    background: #252525;
+    border: 1px solid #383838;
+    overflow: auto;
+    padding: 1em;
+    border-radius: 3px;
+    white-space: pre;
+    font-size: .85em;
+}
 
-/* Навигация внутри чана */
 .board-nav span {
     margin-right: 4px;
     font-size: 12px;
     color: #aaa;
 }
-/* Формы
+
+
+
+/* Ã
  ================================== */
 .form .form-control {
 	margin: 5px 0;
@@ -190,6 +236,11 @@ header span a {
     margin: 5px 0;
     font-weight: bold;
     font-size: 17px;
+}
+.checkbox,
+.radio {
+    position: relative;
+    display: inline-block;
 }
 .checkbox input[type=checkbox],
 .radio input[type=radio] {
@@ -202,12 +253,11 @@ header span a {
     min-height: 20px;
     padding-left: 20px;
     margin-bottom: 0;
-    font-weight: 400;
     cursor: pointer;
 }
 
 
-/* Кнопки и инпуты
+/* Button's and Inputs
  ================================== */
 .input {
     background: #202020;
@@ -216,13 +266,14 @@ header span a {
     padding: 6px 15px;
     display: inline-block;
     outline: none;
-    -webkit-transition: .3s;
-    transition: .3s;
+    -webkit-transition: border .3s, background .3s, color .3s;
+    transition: border .3s, background .3s, color .3s;
     -webkit-border-radius: 4px;
     -moz-border-radius: 4px;
     -o-border-radius: 4px;
     border-radius: 4px;
-    font-size: .9em;      line-height: 1.3;
+    font-size: .9em;
+    line-height: 1.3;
 }
 .input:hover { color: #eee; border-color: #aaa; }
 .input:focus { color: #fff; border-color: #09C; }
@@ -237,8 +288,8 @@ header span a {
     text-align: center;
     text-decoration: none;
     cursor: pointer;
-    -webkit-transition: .3s;
-    transition: .3s;
+    -webkit-transition: border .3s, background .3s, color .3s;
+    transition: border .3s, background .3s, color .3s;
     -webkit-border-radius: 4px;
     -moz-border-radius: 4px;
     -o-border-radius: 4px;
@@ -256,15 +307,16 @@ textarea {
     padding: 6px 15px;
     display: inline-block;
     outline: none;
-    -webkit-transition: .3s;
-    transition: .3s;
+    -webkit-transition: border .3s, background .3s, color .3s;
+    transition: border .3s, background .3s, color .3s;
     -webkit-border-radius: 4px;
     -moz-border-radius: 4px;
     -o-border-radius: 4px;
     border-radius: 4px;
     resize: vertical;
     width: 100%;
-    font-size: .9em;      line-height: 1.3;
+    font-size: .9em;
+    line-height: 1.3;
 }
 textarea:hover { color: #eee; border-color: #aaa; }
 textarea:focus { color: #fff; border-color: #09C; }
@@ -278,6 +330,7 @@ textarea:focus { color: #fff; border-color: #09C; }
 }
 @media screen and (max-width: 640px) {
     body { margin: 5px; }
+    header span { margin: 0 10px; }
 	.page { font-size: .85em; }
     .page h2 { text-align: center; }
     .board-add { width: 100%; }
@@ -286,4 +339,7 @@ textarea:focus { color: #fff; border-color: #09C; }
     #shampoo { height: 100px; }
     .subject { display: block; font-size: 16px; }
     .index-logo { font-size: 50px; width: 190px; }
+    .post { margin: 1px 0; width: 100%; }
+    .post-file { display: block; float: none; }
+    .post-file a img { max-width: 130px; }
 }

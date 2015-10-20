@@ -59,7 +59,7 @@ try {
 		// Устанавливаем базовый путь
 		$url->setBaseUri($config->application->baseUri);
 		return $url;
-	});
+	}, true );
 
 	/**
 	 * Setting up the view component
@@ -82,10 +82,10 @@ try {
 			'dbname' 	=> $config->database->name,
 			'charset'   => 'utf8'
 		));
-	});
-	
+	}, true);
+
 	/*
-	 * Poeben' for normal catching 404
+	 * Poeben'
 	 */
 	$di->set('dispatcher', function() use ($di) {
 			$evManager = $di->getShared('eventsManager');

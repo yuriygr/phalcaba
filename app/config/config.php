@@ -3,20 +3,21 @@
 return new \Phalcon\Config(array(
 	'site' => array(
 		'title'				=> 'Phalcaba',
-		'description'		=> 'Phalcon IB',
-		'keywords'			=> 'Phalcon IB',
+		'description'		=> 'Phalcaba',
+		'keywords'			=> 'Phalcaba',
 
 		'replyLimit'		=> '4',
 		'threadLimit'		=> '10',
 		'postLimit'			=> '500',
-		'defalutName'		=> 'Аноним'
+		'defalutName'		=> 'Аноним',
+		'allowedFormats'	=> 'jpg, jpeg, png, gif'
 	),
 	'database' => array(
 		'adapter'			=> 'Mysql',
-		'host'				=> 'localhost',
-		'username'			=> 'username',
-		'password'			=> 'PASSWORD',
-		'name'				=> 'dbname',
+		'host'				=> '',
+		'username'			=> '',
+		'password'			=> '',
+		'name'				=> '',
 	),
 	'application' => array(
 		'controllersDir'	=> __DIR__ . '/../../app/controllers/',
@@ -25,6 +26,6 @@ return new \Phalcon\Config(array(
 		'libraryDir'		=> __DIR__ . '/../../app/library/',
 		'baseUri'			=> '/',
 		'cryptSalt'			=> 'eE_&,+v]:-3d-*A&Sy|:+.u>/6m,$D',
-		'version'			=> '0.1a',
+		'version'			=> '0.2b',
 	),
 ));

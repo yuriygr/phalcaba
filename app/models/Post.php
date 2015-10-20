@@ -21,10 +21,15 @@ class Post extends ModelBase
     public $owner;
     
     public $bump;
+    
+    public $sage;
+    
+    public $isLocked;
 
-	public function initialize()
-	{
-	}
+    public function initialize()
+    {
+        $this->hasMany("id", "File", "owner");
+    }
 	// После того как выбрали данные из базы
 	public function afterFetch()
 	{
@@ -33,20 +38,25 @@ class Post extends ModelBase
         
 	    $this->name = $config->site->defalutName;
 	    $this->time = $this->formatDate($this->timestamp);
+	    // Ссылка на пост
 	    $this->link = Tag::linkTo([
 	    	$url->get([ 'for' => 'thread-link', 'board' => $this->board, 'id' => ($this->parent == 0 ? $this->id : $this->parent) ]).'#'.$this->id,
 	    	'#' . $this->id,
 	    	'data-reflink' => $this->id
 	    ]);
+	    // Ссылка на открытие треда
 	    $this->open = Tag::linkTo([
 	    	$url->get([ 'for' => 'thread-link', 'board' => $this->board, 'id' => $this->id ]),
-	    	'[Открыть]'
+	    	'[Открыть]',
+	    	'data-openthread' => $this->id
 	    ]);
-	    
-	    $this->replies = Post::find("parent = $this->id and type = 'reply' and board = '$this->board'")->count();
+	    // Кол-во ответов
+	    if ( $this->parent == 0 )
+			$this->replies = Post::find("parent = $this->id and type = 'reply' and board = '$this->board'")->count();
 	}
-	
-	public function getReply( $limit = null ) {
+	// Получение ответов на пост. TODO: Так же можно рекурсивные комменты делать!
+	public function getReply( $limit = null )
+	{
 		$offset = ($this->replies - $limit) < 0 ? null : ($this->replies - $limit);
 		$reply = Post::find(
 			[ 'parent = :id: and type = "reply" and board = :board:', 'group' => 'id', 'limit' => $limit, 'offset' => $offset, 'bind' => [
@@ -55,5 +65,12 @@ class Post extends ModelBase
 			]]
 		);
 		return $reply;
-	} 
+	}
+	
+	// Получаем файл из того же раздела
+	public function getFiles()
+	{
+		return $this->getFile("board = '{$this->board}'");
+	}
+	
 }
