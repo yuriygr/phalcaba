@@ -12,6 +12,8 @@ class ControllerBase extends \Phalcon\Mvc\Controller
 
 		// Записываем метатеги
 		$this->tag->setTitle($this->config->site->title);
+		$this->tag->setDescription($this->config->site->description);
+		$this->tag->setKeywords($this->config->site->keywords);
 
 		// Список всех досок
 		$this->boards = Chan::find('hide != 1');
@@ -21,13 +23,15 @@ class ControllerBase extends \Phalcon\Mvc\Controller
 		
 		$this->assets
 			 ->collection('js')
-			 ->addJs('js/jquery.min.js', true, false)
+			 ->addJs('//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js', false)
+			 ->addJs('js/jquery.ambiance.js')
 			 ->addJs('js/main.js');
 		$this->assets
 			 ->collection('css')
-			 ->addCss('http://fonts.googleapis.com/css?family=Open+Sans:300,400&amp;subset=latin,cyrillic-ext', false)
+			 ->addCss('//fonts.googleapis.com/css?family=Open+Sans:300,400&amp;subset=latin,cyrillic-ext', false)
 			 ->addCss('css/reset.css')
 			 ->addCss('css/style.css');
+			 
 	}
 	/*
 	 * Ахтунг! Возвращает json контент

@@ -19,6 +19,6 @@ class PagesController extends ControllerBase
 	public function show404Action()
 	{
 		$this->response->setStatusCode(404, "Not Found");
-		$this->tag->prependTitle("error 404");
+		$this->tag->prependTitle("Ошибка 404");
 	}
 }

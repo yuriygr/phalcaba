@@ -7,42 +7,59 @@ class ChanController extends ControllerBase
 
     public function initialize()
     {
-		$this->board_param 	= $this->dispatcher->getParam('board');
+		$this->board_param 	= $this->dispatcher->getParam('board', 'string');
 		$this->thread_param	= $this->dispatcher->getParam('id', 'int', '0');
 		
-		$this->board 		= Chan::findFirst(
+		$this->board = Chan::findFirst(
 			[ 'slug = :slug:', 'bind' => [
 				'slug' => $this->board_param
 			]]
 		);
+
+		$this->tag->setTitle($this->board->name);
     }
     
+
  	public function addAction()
 	{
 
 		if ( $this->request->isPost() && $this->request->isAjax() ) {
+			$e = new Phalcon\Escaper();
 			
-			$board_slug = $this->request->getPost('board_slug');
-			$thread_id 	= $this->request->getPost('thread_id');
+			$board_slug = $this->board->slug;
+			
+			$yarn 		= $this->request->getPost('yarn', 'int');
 			
 			$kasumi 	= $this->request->getPost('kasumi');
+			$kasumi 	= $this->filter->sanitize($kasumi, 'striptags');
+			$kasumi 	= $e->escapeHtml($kasumi);
+			
 			$shampoo 	= $this->request->getPost('shampoo');
+			$shampoo	= $this->filter->sanitize($shampoo, 'striptags');
+			$shampoo	= $this->parse->make($shampoo);
+			
 			$sage 		= $this->request->getPost('sage') ? 1 : 0;
-			$files 		= $this->request->getPost('files');
+			
+			$foruda 	= $this->request->getPost('foruda');
 
-			// Проверка наличия раздела
+
 			$board = Chan::findFirst(
 				[ 'slug = :slug:', 'bind' => [
 					'slug' => $board_slug
 				]]
 			);
+			// Проверка наличия раздела
 			if (!$board)
 				return $this->_returnJson([ 'error' => 'Такого раздела не существует' ]);
+			// Проверка на закрыт ли он
+			if ($board->isLocked)
+				return $this->_returnJson([ 'error' => 'Раздел закрыт, в него постить нельзя' ]);		
 			
-			if ($thread_id != 0) {
+			
+			if ($yarn != 0) {
 				$thread = Post::findFirst(
 					[ 'id = :id: and type = "thread" and board = :board:', 'bind' => [
-						'id' => $thread_id,
+						'id' => $yarn,
 						'board' => $board_slug
 					]]
 				);
@@ -51,71 +68,54 @@ class ChanController extends ControllerBase
 					return $this->_returnJson([ 'error' => 'Такого треда не существует' ]);
 				// Проверка на закрыт ли он
 				if ($thread->isLocked)
-					return $this->_returnJson([ 'error' => 'Тред закрыт. В него постить нельзя' ]);
+					return $this->_returnJson([ 'error' => 'Тред закрыт, в него постить нельзя' ]);
 			}
 			
+			// Проверка длины заголовка
+			if (iconv_strlen($kasumi) >  $this->config->site->subjectLimit)
+				return $this->_returnJson([ 'error' => 'Заголовок слишком длинный' ]);
+				
 			// Проверка на наличие текста
 			if (!$shampoo)
 				return $this->_returnJson([ 'error' => 'Введите сообщение' ]);
 
-    		/*   
-    		
-    		    ТУТ ТУПО ОБРАБАТЫВАЕМ ФАЙЛ!
-    		
-    		*/
 
 			$post = new Post();
-			$parse = new \Phalcon\Utils\Parse;
-			// Обрабатываем Тему
-			$post->subject		=	$this->filter->sanitize($kasumi, 'striptags');
-			// Задаём время
+			$post->subject		=	$kasumi;
 			$post->timestamp 	=	time();
-			// Обрабатываем Сообщение
-			$post->text			=	$this->filter->sanitize($shampoo, 'striptags');
-			$post->text			=	$parse->make($post->text);
-
-			$post->type 		= 	($thread_id == 0) ? 'thread' : 'reply';
-			$post->parent 		= 	$thread_id;
+			$post->text			=	$shampoo;
+			$post->type 		= 	($yarn == 0) ? 'thread' : 'reply';
+			$post->parent 		= 	$yarn;
 			$post->board 		= 	$board_slug;
 			$post->owner 		= 	'admin';
-			$post->bump 		= 	($thread_id == 0) ? time() : 0;
-			$post->sage 		= 	($thread_id == 0) ? 0 : $sage;
+			$post->bump 		= 	($yarn == 0) ? time() : 0;
+			$post->sage 		= 	($yarn == 0) ? 0 : $sage;
 
 			if ($post->save()) {
-				// Добавление картинки в базу
-				if ($files) {
-					$file = new File();
-		    		$file->slug = "DFrgf";
-		    		$file->board = $post->board;
-		    		$file->type = "jpg";
-		    		$file->owner = $post->id;
-
-					if (!$file->save())
-						return $this->_returnJson([ 'error' => 'Файл не загружен. Но пост прошёл.' ]);
-				}
-				
+			
 				// Добавление бампа
 				if ($post->parent != 0) {
 					$thread = Post::findFirstById($post->parent);
-					if ($thread->replies < $this->config->site->postLimit and $post->sage == 0)
+					if ($thread->countReply() < $this->config->site->postLimit && $post->sage == 0)
 						$thread->bump = $post->timestamp;
 
 					if (!$thread->update())
-						return $this->_returnJson([ 'error' => 'Тред не бампнут. Но пост прошёл.' ]);
+						return $this->_returnJson([ 'error' => 'Тред не бампнут, но пост прошёл' ]);
 				}
 				
-				// Редиректим под конец куда нибудь
-				if ($post->parent != 0) {
-					// Если пост ответ	
+				// Редиректим куда нибудь после поста
+				if ($post->parent != 0)
+					// Если добавляется пост, то редирект на пост / TODO: обновляем тред	
 					return $this->_returnJson([
-						'redirect' => $this->url->get([ 'for' => 'thread-link', 'board' => $thread->board, 'id' => $post->parent ])
+						'success' => 'Пост отправлен',
+						'redirect' => $this->url->get([ 'for' => 'thread-link', 'board' => $post->board, 'id' => $post->parent ])
 					]);
-				} else {
-					//Если пост тред
+				else
+					// Если создаётся тред, то редирект
 					return $this->_returnJson([
+						'success' => 'Тред создан, перенаправляю',
 						'redirect' => $this->url->get([ 'for' => 'thread-link', 'board' => $post->board, 'id' => $post->id ])
 					]);
-				}
 				
 			// Если не добавился пост
 			} else {
@@ -124,7 +124,6 @@ class ChanController extends ControllerBase
 			}
 			
 		}
-
 		return $this->response->redirect($this->url->get([ 'for' => 'home-link' ]));
 	}
 	
@@ -138,7 +137,7 @@ class ChanController extends ControllerBase
 		$currentPage =  $this->dispatcher->getParam('page', 'int');
 		if ($currentPage <= 0) $currentPage = 1;
 		$threads = Post::find(
-			[ 'type = "thread" and board = :board:', 'order' => 'bump DESC', 'bind' => [
+			[ 'type = "thread" and board = :board:', 'order' => 'isSticky DESC, bump DESC', 'bind' => [
 				'board' => $this->board->slug
 			]]
 		);
@@ -155,7 +154,7 @@ class ChanController extends ControllerBase
 
 
 		// Название раздела
-		$this->tag->setTitle($this->board->name);
+		$this->tag->prependTitle('/' . $this->board->slug . '/');
 		
 		// Передаём переменные борда, номер треда и треды
         $this->view->setVars([
@@ -184,7 +183,7 @@ class ChanController extends ControllerBase
 			return $this->_returnNotFound();
 
 		// Название треда
-		$this->tag->setTitle($thread->subject ? $thread->subject : 'Тред #'.$thread->id);
+		$this->tag->prependTitle($thread->subject ? $thread->subject : 'Тред #'.$thread->id);
 		
 		// Передаём переменную содержащую борду, номер треда и тред
         $this->view->setVars([
@@ -202,7 +201,7 @@ class ChanController extends ControllerBase
 	
 		// Поиск тредов
 		$threads = Post::find(
-			[ 'type = "thread" and board = :board:', 'order' => 'bump DESC', 'bind' => [
+			[ 'type = "thread" and board = :board:', 'order' => 'isSticky DESC, bump DESC', 'bind' => [
 				'board' => $this->board->slug
 			]]
 		);
@@ -212,13 +211,25 @@ class ChanController extends ControllerBase
 			$this->_returnNoThreads();
 		
 		// Название каталога
-		$this->tag->setTitle('Каталог - '.$this->board->name);
+		$this->tag->prependTitle('catalog');
 		
 		// Передаём переменную содержащую раздел и тред
         $this->view->setVars([
             'board' 	=> $this->board,
             'thread_id' => $this->thread_param,
             'threads' 	=> $threads
+        ]);
+	}
+	
+	public function searchAction()
+	{
+		// Название каталога
+		$this->tag->prependTitle('search');
+		
+		// Передаём переменную содержащую раздел и тред
+        $this->view->setVars([
+            'board' 	=> $this->board,
+            'thread_id' => $this->thread_param
         ]);
 	}
 

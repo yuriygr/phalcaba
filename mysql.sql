@@ -1,5 +1,3 @@
--- Adminer 4.1.0 MySQL dump
-
 SET NAMES utf8;
 SET time_zone = '+00:00';
 SET foreign_key_checks = 0;
@@ -13,15 +11,17 @@ CREATE TABLE `chan` (
   `description` varchar(100) NOT NULL,
   `category` varchar(100) NOT NULL,
   `hide` int(1) unsigned NOT NULL DEFAULT '0',
+  `isLocked` int(1) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
 
-INSERT INTO `chan` (`id`, `slug`, `name`, `description`, `category`, `hide`) VALUES
-(1,	'b',	'/Б/ред',	'',	'Разное',	0),
-(2,	's',	'Софт',	'',	'Технологии',	0),
-(3,	'vg',	'Видеоигры',	'',	'Развлечение',	0),
-(4,	'tv',	'Фильмы и сериалы',	'',	'Развлечение',	0),
-(6,	'x',	'X',	'Скрытый раздел',	'Разное',	1);
+INSERT INTO `chan` (`id`, `slug`, `name`, `description`, `category`, `hide`, `isLocked`) VALUES
+(1,	'b',	'/Б/ред',	'',	'Разное',	0,	0),
+(2,	's',	'Софт',	'',	'Технологии',	0,	0),
+(3,	'vg',	'Видеоигры',	'',	'Развлечение',	0,	0),
+(4,	'tv',	'Фильмы и сериалы',	'',	'Развлечение',	0,	0),
+(5,	'c',	'О чане',	'Обсуждение работы чана',	'Разное',	0,	0),
+(6,	'x',	'Тесты',	'Раздел для тестирования',	'Разное',	0,	0);
 
 DROP TABLE IF EXISTS `file`;
 CREATE TABLE `file` (
@@ -31,8 +31,10 @@ CREATE TABLE `file` (
   `type` varchar(10) NOT NULL,
   `owner` varchar(10) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
+INSERT INTO `file` (`id`, `slug`, `board`, `type`, `owner`) VALUES
+(1,	'D9gfFdg',	'b',	'jpg',	'1');
 
 DROP TABLE IF EXISTS `news`;
 CREATE TABLE `news` (
@@ -40,8 +42,10 @@ CREATE TABLE `news` (
   `text` text NOT NULL,
   `timestamp` int(10) unsigned NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
+INSERT INTO `news` (`id`, `text`, `timestamp`) VALUES
+(1,	'<p>Привет, Мир!</p>',	1441870014);
 
 DROP TABLE IF EXISTS `post`;
 CREATE TABLE `post` (
@@ -56,8 +60,6 @@ CREATE TABLE `post` (
   `bump` int(10) unsigned NOT NULL DEFAULT '0',
   `sage` int(1) unsigned NOT NULL DEFAULT '0',
   `isLocked` int(1) unsigned NOT NULL DEFAULT '0',
+  `isSticky` int(1) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`,`board`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
-
--- 2015-10-20 15:22:32
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;

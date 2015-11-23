@@ -1,5 +1,9 @@
 <?php use Phalcon\Tag as Tag; ?>
 
+<script type="text/javascript">
+	var is_thread = <?= (isset($thread_id) && $thread_id != 0) ? 'true' : 'false' ?>;
+</script>
+
 <div class="board">
 	
 	<h2 class="board-name">
@@ -10,10 +14,11 @@
 	</h2>
 	<hr>
 	<div class="board-add">
-		<?php $this->partial("partial/add", [ 'board_slug' => $board->slug, 'thread_id' => $thread_id ]); ?>
+		<?php $this->partial("partial/add", [ 'thread_id' => $thread_id ]); ?>
 	</div>
 	<hr>
 	<div class="board-content">
 		<?= $this->getContent(); ?>
 	</div>
+	
 </div>

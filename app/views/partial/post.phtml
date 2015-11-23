@@ -1,4 +1,4 @@
-<div class="post reply" id="<?= $post->id; ?>">
+<div class="post <?= $post->type; ?>" id="<?= $post->id; ?>">
     <div class="post-info">
         <?php if ($post->subject) { ?>
             <span class="subject"><?= $post->subject; ?></span>
@@ -10,11 +10,11 @@
         <span class="time"><?= $post->time; ?></span>
         <span class="link"><?= $post->link; ?></span>
     </div>
-        
+
     <?php if ($post->getFiles()) { ?>
         <div class="post-file left">
         <?php foreach ($post->getFiles() as $file) { ?>
-            <a href="<?= $file->getLink('origin'); ?>" data-expand="true">
+            <a href="<?= $file->getLink('origin'); ?>" data-image-expand="true">
                 <img src="<?= $file->getLink('thumb'); ?>" alt="file-<?= $file->type; ?>-<?= $file->id; ?>">
                 <span class="file-info">(1230x790) <?= $file->type; ?></span>
             </a>

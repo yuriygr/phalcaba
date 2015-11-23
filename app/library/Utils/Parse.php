@@ -46,10 +46,11 @@ class Parse {
 		if ( $post )
 		    $link = \Phalcon\Tag::linkTo([
 		    	$url->get([ 'for' => 'thread-link', 'board' => $post->board, 'id' => ($post->parent == 0 ? $post->id : $post->parent) ]).'#'.$post->id,
-		    	'>>' . $post->id . ($post->parent == 0 ? ' (OP)' : '')
+		    	'&gt;&gt;' . $post->id,
+		    	'class' => ($post->parent == 0 ? 'op_post' : '')
 		    ]);
 		else
-			$link = ">>".$matches[1];
+			$link = "&gt;&gt;".$matches[1];
 			
 		return $link.$lastchar;
 	}
@@ -102,7 +103,7 @@ class Parse {
 
 		$buffer_temp = str_replace(" ", "", $buffer_temp);
 		
-		if ($buffer_temp=="")
+		if ($buffer_temp == "")
 			return "";
 		else
 			return $buffer;
@@ -112,8 +113,6 @@ class Parse {
 		// Чистим вилкой
 		$message = trim($message);
 		$message = htmlspecialchars($message, ENT_QUOTES);
-		// Ссылки
-		$message = $this->MakeLink($message);
 		// Ссылка на пост
 		$message = $this->MakePostLink($message);
 		// Цитата
@@ -122,6 +121,8 @@ class Parse {
 		$message = str_replace("\n", '<br />', $message);
 		// ББ коды
 		$message = $this->BBCode($message);
+		// Ссылки
+		$message = $this->MakeLink($message);
 		// Убираем лишние переносы
 		$message = preg_replace('#(<br(?: \/)?>\s*){3,}#i', '<br /><br />', $message);
 		// Проверка на наличие

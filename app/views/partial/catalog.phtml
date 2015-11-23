@@ -1,5 +1,15 @@
 <div class="post catalog">
-    <p>Т: <?= $thread->subject ? $thread->subject : 'Без темы'; ?> / О: <?= $thread->replies; ?></p>
+    <?php if ($thread->getFiles()) { ?>
+        <div class="post-file left">
+        <?php foreach ($thread->getFiles() as $file) { ?>
+            <a href="<?= $file->getLink('origin'); ?>" data-expand="true">
+                <img src="<?= $file->getLink('thumb'); ?>" alt="file-<?= $file->type; ?>-<?= $file->id; ?>">
+                <span class="file-info">(1230x790) <?= $file->type; ?></span>
+            </a>
+        <? } ?>
+        </div>
+    <? } ?>
+    <p>Т: <?= $thread->subject ? $thread->subject : 'Без темы'; ?> / О: <?= $thread->countReply(); ?></p>
     <?= $thread->text; ?>
 </div>
 <div class="clear"></div>

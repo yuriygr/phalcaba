@@ -4,13 +4,15 @@
 <head>
 	<meta charset="utf-8">
 	<?= $this->tag->getTitle(); ?>
+	<?= $this->tag->getDescription(); ?>
+	<?= $this->tag->getKeywords(); ?>
 	<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
 	<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 	<meta name="HandheldFriendly" content="true">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<?= $this->assets->outputCss(); ?>
 </head>
-<body class='fixheader'>
+<body class="fixheader">
 
 <header>
 	<span class="logo">
@@ -20,8 +22,6 @@
 		<?php $this->partial("partial/boards_list"); ?>
 	</span>
 	<span class="menu">
-		<a href="/adminer.php?server=0.0.0.0&amp;username=yuriygr&amp;db=c9">a</a>
-		/
 		<?= Tag::linkTo([ $this->url->get([ 'for' => 'faq-link' ]),  'faq' ]); ?>
 		/
 		<?= Tag::linkTo([ $this->url->get([ 'for' => 'rules-link' ]),  'rules' ]); ?>

@@ -13,6 +13,7 @@ a {
 	text-decoration: none;
 	outline: none;
 }
+a.op_post::after { content: " (OP)"; }
 a:hover { color: #09C; text-decoration: underline; }
 hr {
 	height: 1px;
@@ -38,31 +39,6 @@ p {
   -webkit-user-select: none;
   cursor: default;
 }
-.index-logo:after {
-  content: attr(data-text);
-  position: absolute;
-  left: 2px;
-  text-shadow: -1px 0 red;
-  top: 0;
-  color: white;
-  background: #252525;
-  overflow: hidden;
-  clip: rect(0, 900px, 0, 0);
-  animation: noise-anim 2s infinite linear alternate-reverse;
-}
-.index-logo:before {
-  content: attr(data-text);
-  position: absolute;
-  left: -2px;
-  text-shadow: 1px 0 blue;
-  top: 0;
-  color: white;
-  background: #252525;
-  overflow: hidden;
-  clip: rect(0, 900px, 0, 0);
-  animation: noise-anim-2 3s infinite linear alternate-reverse;
-}
-
 
 
 
@@ -71,10 +47,10 @@ p {
 body.fixheader { margin-top: 40px; }
 body.fixheader header {
     background: #252525;
-    box-shadow: 0px 1px 1px #202020;
+    border-bottom: 1px solid #383838;
     position: fixed;
-    left: 0;
-    right: 0;
+    left: 10px;
+    right: 10px;
     top: 0;
     z-index: 66660;
 }
@@ -113,7 +89,9 @@ header span a {
 }
 .board-add #kasumi { width: 510px; }
 .board-add #submit { width: 86px; }
-.board-pagination { color: #aaa; }
+.board-pagination {
+    color: #aaa;
+}
 
 
 /* Page
@@ -121,13 +99,8 @@ header span a {
 .page {
     width: 900px;
     margin: 25px auto;
-    background: #202020;
-    border: 1px solid #383838;
+    background: #1F1F1F;
     padding: 5px 10px;
-    -webkit-border-radius: 4px;
-    -moz-border-radius: 4px;
-    -o-border-radius: 4px;
-    border-radius: 4px;
 }
 .page h2 {
     padding: 5px 0;
@@ -138,15 +111,10 @@ header span a {
 /* Post/Thread
  ================================== */
 .post {
-    background: #202020;
-    border: 1px solid #383838;
+    background: #1F1F1F;
     margin: 3px 0px;
     padding: 5px 10px;
     display: inline-block;
-    -webkit-border-radius: 4px;
-    -moz-border-radius: 4px;
-    -o-border-radius: 4px;
-    border-radius: 4px;
 }
 .thread {
     background-color: initial;
@@ -206,6 +174,8 @@ header span a {
 /* MarkUp */
 .spoiler { background: #383838; color: #383838; }
 .spoiler:hover { color: #fff; }
+.spoiler a { color: #383838; }
+.spoiler:hover a { color: #09C; text-decoration: underline; }
 .quote { color: #789922; }
 .underline { text-decoration: underline; }
 pre {
@@ -218,6 +188,7 @@ pre {
     font-size: .85em;
 }
 
+/* Board navigation */
 .board-nav span {
     margin-right: 4px;
     font-size: 12px;
@@ -226,7 +197,7 @@ pre {
 
 
 
-/* Ã
+/* Form control
  ================================== */
 .form .form-control {
 	margin: 5px 0;
@@ -237,31 +208,12 @@ pre {
     font-weight: bold;
     font-size: 17px;
 }
-.checkbox,
-.radio {
-    position: relative;
-    display: inline-block;
-}
-.checkbox input[type=checkbox],
-.radio input[type=radio] {
-    position: absolute;
-    margin-top: 4px\9;
-    margin-left: -20px;
-}
-.checkbox label,
-.radio label {
-    min-height: 20px;
-    padding-left: 20px;
-    margin-bottom: 0;
-    cursor: pointer;
-}
 
-
-/* Button's and Inputs
+/* Input's
  ================================== */
 .input {
-    background: #202020;
-	color: #fff;
+    background: #1F1F1F;
+    color: #fff;
     border: 1px solid #383838;
     padding: 6px 15px;
     display: inline-block;
@@ -279,7 +231,7 @@ pre {
 .input:focus { color: #fff; border-color: #09C; }
 
 .btn {
-    background-color: #202020;
+    background-color: #1F1F1F;
     color: #aaa;
     border: 1px solid #383838;
     padding: 6px 10px;
@@ -301,7 +253,7 @@ pre {
 .btn:focus { color: #fff; border-color: #09C; }
 
 textarea {
-    background: #202020;
+    background: #1F1F1F;
     color: #fff;
     border: 1px solid #383838;
     padding: 6px 15px;
@@ -321,6 +273,26 @@ textarea {
 textarea:hover { color: #eee; border-color: #aaa; }
 textarea:focus { color: #fff; border-color: #09C; }
 
+.checkbox,
+.radio {
+    position: relative;
+    display: inline-block;
+    font-size: .9em;
+}
+.checkbox input[type=checkbox],
+.radio input[type=radio] {
+    position: absolute;
+    margin-top: 4px\9;
+    margin-left: -20px;
+}
+.checkbox label,
+.radio label {
+    min-height: 20px;
+    padding-left: 20px;
+    margin-bottom: 0;
+    cursor: pointer;
+}
+
 
 
 /* Media 
@@ -328,9 +300,10 @@ textarea:focus { color: #fff; border-color: #09C; }
 @media screen and (max-width: 923px) {
 	.page { width: 100%; }
 }
-@media screen and (max-width: 640px) {
+@media screen and (max-width: 650px) {
     body { margin: 5px; }
     header span { margin: 0 10px; }
+    body.fixheader header { left: 5px; right: 5px; }
 	.page { font-size: .85em; }
     .page h2 { text-align: center; }
     .board-add { width: 100%; }
@@ -342,4 +315,53 @@ textarea:focus { color: #fff; border-color: #09C; }
     .post { margin: 1px 0; width: 100%; }
     .post-file { display: block; float: none; }
     .post-file a img { max-width: 130px; }
+}
+
+
+/* Notification 
+ ================================== */
+#ambiance-notification {
+    display: block;
+    position: fixed;
+    top: 30px;
+    right: 10px;
+    z-index: 9999;
+}
+.ambiance {
+    background: #1F1F1F;
+    padding: 10px;
+    margin: 5px 0;
+    border: 1px solid #fff;
+    color: #fff;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    -o-border-radius: 4px;
+    border-radius: 4px;
+    float: right;
+    clear: both;
+    opacity: .9;
+}
+.ambiance:hover { opacity: 1; }
+.ambiance-title { font-weight: bold; }
+/* Types */
+.ambiance-default { border-color: #09C; }
+.ambiance-success { border-color: #789922; }
+.ambiance-error { border-color: #B94A48; }
+/* Close */
+.ambiance-close {
+    display: block;
+    position: relative;
+    top: -2px;
+    right: 0px;
+    color: #FFFFFF;
+    float: right;
+    font-size: 18px;
+    text-decoration: none;
+    position: relative;
+    line-height: 14px;
+    margin-left: 5px;
+}
+.ambiance-close:hover {
+    color: #aaa;
+    text-decoration: none;
 }

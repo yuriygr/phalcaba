@@ -25,6 +25,8 @@ class Post extends ModelBase
     public $sage;
     
     public $isLocked;
+    
+    public $isSticky;
 
     public function initialize()
     {
@@ -42,22 +44,26 @@ class Post extends ModelBase
 	    $this->link = Tag::linkTo([
 	    	$url->get([ 'for' => 'thread-link', 'board' => $this->board, 'id' => ($this->parent == 0 ? $this->id : $this->parent) ]).'#'.$this->id,
 	    	'#' . $this->id,
-	    	'data-reflink' => $this->id
+	    	'data-reply' => $this->id,
+	    	'data-reply-thread' => ($this->parent == 0 ? $this->id : $this->parent)
 	    ]);
 	    // Ссылка на открытие треда
 	    $this->open = Tag::linkTo([
 	    	$url->get([ 'for' => 'thread-link', 'board' => $this->board, 'id' => $this->id ]),
 	    	'[Открыть]',
-	    	'data-openthread' => $this->id
+	    	'data-thread-open' => $this->id
 	    ]);
-	    // Кол-во ответов
-	    if ( $this->parent == 0 )
-			$this->replies = Post::find("parent = $this->id and type = 'reply' and board = '$this->board'")->count();
 	}
-	// Получение ответов на пост. TODO: Так же можно рекурсивные комменты делать!
+	// Кол-во ответов
+	public function countReply()
+	{
+		if ( $this->parent == 0 )
+			return Post::find("parent = $this->id and type = 'reply' and board = '$this->board'")->count();
+	}
+	// Получение ответов на пост / TODO: Так же можно рекурсивные комменты делать!
 	public function getReply( $limit = null )
 	{
-		$offset = ($this->replies - $limit) < 0 ? null : ($this->replies - $limit);
+		$offset = ($this->countReply() - $limit) < 0 ? null : ($this->countReply() - $limit);
 		$reply = Post::find(
 			[ 'parent = :id: and type = "reply" and board = :board:', 'group' => 'id', 'limit' => $limit, 'offset' => $offset, 'bind' => [
 				'id' => $this->id,
@@ -65,12 +71,17 @@ class Post extends ModelBase
 			]]
 		);
 		return $reply;
-	}
-	
-	// Получаем файл из того же раздела
+	}	
+	// Получаем файл из того же раздела / TODO: переделать же!
 	public function getFiles()
 	{
-		return $this->getFile("board = '{$this->board}'");
+		$files = $this->getFile("board = '{$this->board}'");
+		
+		if ($files->count() >= 1)
+			return $files;
+		else
+			return false;
+		
 	}
 	
 }

@@ -131,6 +131,14 @@ try {
 	});
 	
 	/**
+	 * Парсер
+	 */	
+	$di->set('parse', function() {
+		$parse = new \Phalcon\Utils\Parse;
+		return $parse;
+	});
+
+	/**
 	 * Печенье
 	 */	
 	$di->set('cookies', function () {
@@ -154,7 +162,7 @@ try {
 	});
 
 	/**
-	 * О да!
+	 * crypt
 	 */	
 	$di->set('crypt', function () use ($config) {
 		$crypt = new \Phalcon\Crypt();
