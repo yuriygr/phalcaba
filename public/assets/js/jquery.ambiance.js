@@ -18,7 +18,7 @@
 			message: "",
 			type: "default",
 			permanent: false,
-			timeout: 2,
+			timeout: 3,
 			fade: true,
 			width: 300
 		};

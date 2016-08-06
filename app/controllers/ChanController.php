@@ -1,12 +1,15 @@
 <?php
 
 use \Phalcon\Utils\Slug as Slug;
+use \Phalcon\Mvc\View as View;
 
 class ChanController extends ControllerBase
 {
 
     public function initialize()
     {
+    	parent::initialize();
+
 		$this->board_param 	= $this->dispatcher->getParam('board', 'string');
 		$this->thread_param	= $this->dispatcher->getParam('id', 'int', '0');
 		
@@ -15,14 +18,18 @@ class ChanController extends ControllerBase
 				'slug' => $this->board_param
 			]]
 		);
-
+		
+		// Если нет такого раздела - разворачиваемся и уходим
+		if (!$this->board)
+			return $this->_returnNotFound();
+			
 		$this->tag->setTitle($this->board->name);
     }
     
-
  	public function addAction()
 	{
-
+		$this->view->disable();
+		
 		if ( $this->request->isPost() && $this->request->isAjax() ) {
 			$e = new Phalcon\Escaper();
 			
@@ -36,25 +43,23 @@ class ChanController extends ControllerBase
 			
 			$shampoo 	= $this->request->getPost('shampoo');
 			$shampoo	= $this->filter->sanitize($shampoo, 'striptags');
-			$shampoo	= $this->parse->make($shampoo);
+			$shampoo	= $this->parse->make($shampoo, $board_slug, $yarn);
 			
 			$sage 		= $this->request->getPost('sage') ? 1 : 0;
-			
-			$foruda 	= $this->request->getPost('foruda');
-
 
 			$board = Chan::findFirst(
 				[ 'slug = :slug:', 'bind' => [
 					'slug' => $board_slug
 				]]
 			);
+			
 			// Проверка наличия раздела
 			if (!$board)
 				return $this->_returnJson([ 'error' => 'Такого раздела не существует' ]);
+
 			// Проверка на закрыт ли он
 			if ($board->isLocked)
 				return $this->_returnJson([ 'error' => 'Раздел закрыт, в него постить нельзя' ]);		
-			
 			
 			if ($yarn != 0) {
 				$thread = Post::findFirst(
@@ -87,15 +92,20 @@ class ChanController extends ControllerBase
 			$post->type 		= 	($yarn == 0) ? 'thread' : 'reply';
 			$post->parent 		= 	$yarn;
 			$post->board 		= 	$board_slug;
-			$post->owner 		= 	'admin';
+			$post->owner 		= 	'0';
 			$post->bump 		= 	($yarn == 0) ? time() : 0;
 			$post->sage 		= 	($yarn == 0) ? 0 : $sage;
 
 			if ($post->save()) {
-			
+
 				// Добавление бампа
 				if ($post->parent != 0) {
-					$thread = Post::findFirstById($post->parent);
+					$thread = Post::findFirst(
+						[ 'id = :id: and board = :board:', 'bind' => [
+							'id' => $post->parent,
+							'board' => $post->board
+						]]
+					);
 					if ($thread->countReply() < $this->config->site->postLimit && $post->sage == 0)
 						$thread->bump = $post->timestamp;
 
@@ -108,6 +118,7 @@ class ChanController extends ControllerBase
 					// Если добавляется пост, то редирект на пост / TODO: обновляем тред	
 					return $this->_returnJson([
 						'success' => 'Пост отправлен',
+						'sendPost' => ['threadId' => $post->parent, 'postId' => $post->id ],
 						'redirect' => $this->url->get([ 'for' => 'thread-link', 'board' => $post->board, 'id' => $post->parent ])
 					]);
 				else
@@ -147,14 +158,12 @@ class ChanController extends ControllerBase
 			'page' => $currentPage
 		]);
 		$threads = $paginator->getPaginate();
-		
-		// Проверка на их наличие
-		if (!$threads->items)
-			$this->_returnNoThreads();
-
 
 		// Название раздела
 		$this->tag->prependTitle('/' . $this->board->slug . '/');
+		// Описание раздела, если есть
+		if ($this->board->description)
+			$this->tag->setDescription($this->board->description);
 		
 		// Передаём переменные борда, номер треда и треды
         $this->view->setVars([
@@ -183,8 +192,11 @@ class ChanController extends ControllerBase
 			return $this->_returnNotFound();
 
 		// Название треда
-		$this->tag->prependTitle($thread->subject ? $thread->subject : 'Тред #'.$thread->id);
-		
+		$this->tag->prependTitle($thread->subject ? $thread->subject : 'Thread #'.$thread->id);
+		// Описание раздела, если есть
+		if ($this->board->description)
+			$this->tag->setDescription($this->board->description);
+
 		// Передаём переменную содержащую борду, номер треда и тред
         $this->view->setVars([
             'board' 	=> $this->board,
@@ -211,7 +223,7 @@ class ChanController extends ControllerBase
 			$this->_returnNoThreads();
 		
 		// Название каталога
-		$this->tag->prependTitle('catalog');
+		$this->tag->prependTitle('Сatalog');
 		
 		// Передаём переменную содержащую раздел и тред
         $this->view->setVars([
@@ -221,16 +233,22 @@ class ChanController extends ControllerBase
         ]);
 	}
 	
-	public function searchAction()
-	{
-		// Название каталога
-		$this->tag->prependTitle('search');
-		
-		// Передаём переменную содержащую раздел и тред
-        $this->view->setVars([
-            'board' 	=> $this->board,
-            'thread_id' => $this->thread_param
-        ]);
+	private function _addImageToPost($postId) {
+		if($this->request->hasFiles() == true) {
+			mkdir('images/' . $postId, 0777);
+			foreach($this->request->getUploadedFiles() as $file) {
+				$images = new Images();
+				$images->postId = $postId;
+				$explodedName = explode('.', $file->getName());
+				$extension = end($explodedName);
+				$images->extension = $extension;
+				if($images->save()) {
+					$file->moveTo('images/' . $postId . '/' . $images->imageId . '.' . $extension);
+				}
+			}
+		}
+		return true;
+	
 	}
-
+	
 }

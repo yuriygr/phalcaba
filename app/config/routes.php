@@ -1,26 +1,36 @@
 <?php
 // Home
-$router->add( '/', 'Pages::index' )
+$router->add( '/', 'Page::index' )
 	   ->setName('home-link');
-// Pages
-$router->add( '/faq', 'Pages::faq' )
-	   ->setName('faq-link');
-$router->add( '/rules', 'Pages::rules' )
-	   ->setName('rules-link');
+	   
+// Page
+$router->add( '/page/{slug}', 'Page::show' )
+	   ->setName('page-link');
+$router->add( '/page/404', 'Page::show404' )
+	   ->setName('page-404');
 
 // Chan
 $router->add( '/{board:[a-z]+}/', 'Chan::board' )
 	   ->setName('board-link');
+
 $router->add( '/{board:[a-z]+}/add', 'Chan::add' )
 	   ->setName('add-link');
+
 $router->add( '/{board:[a-z]+}/page/{page:[0-9]+}', 'Chan::board' )
-	   ->setName('page-link');
+	   ->setName('chan-page-link');
+
 $router->add( '/{board:[a-z]+}/thread/{id:[0-9]+}', 'Chan::thread' )
 	   ->setName('thread-link');
+
 $router->add( '/{board:[a-z]+}/catalog', 'Chan::catalog' )
-	   ->setName('catalog-link');
-$router->add( '/{board:[a-z]+}/search', 'Chan::search' )
-	   ->setName('search-link');
+	   ->setName('chan-catalog-link');
+
+// News
+$router->add( '/news/', 'News::list' )
+	   ->setName('news-list');
+
+$router->add( '/news/{slug}', 'News::show' )
+	   ->setName('news-link');
 
 // 404 page
-$router->notFound( 'Pages::show404' );
+$router->notFound( 'Page::show404' );

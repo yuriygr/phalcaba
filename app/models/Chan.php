@@ -12,6 +12,10 @@ class Chan extends ModelBase
 	public $description;
 	
 	public $hide;
+	
+	public $isLocked;
+	
+	public $isLeed;
 
 	public function initialize()
 	{

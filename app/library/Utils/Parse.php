@@ -1,15 +1,20 @@
 <?php
 namespace Phalcon\Utils;
 
-class Parse {
+use Phalcon\Mvc\User\Component;
+
+class Parse extends Component {
+
+	var $board_slug;
+	var $thread_id;
 
 	/* Ссылки
 	 ================================== */
-	function MakeLink($txt) {
+	function MakeLink($buffer) {
 		/* Make http:// urls in posts clickable */
-		$txt = preg_replace('#(http://|https://|ftp://)([^(\s<|\[)]*)#', '<a href="\\1\\2">\\1\\2</a>', $txt);
+		$buffer = preg_replace('#(http://|https://|ftp://)([^(\s<|\[)]*)#', '<a href="\\1\\2">\\1\\2</a>', $buffer);
 		
-		return $txt;
+		return $buffer;
 	} 
 	
 	/* Цитаты
@@ -26,12 +31,17 @@ class Parse {
 	/* Ссылка на пост
 	 ================================== */	
 	function MakePostLink($buffer) {
-		/* Ссылка в пределе раздела */
-		$buffer = preg_replace_callback('/&gt;&gt;([r]?[l]?[f]?[q]?[0-9,\-,\,]+)/', array(&$this, 'InterthreadQuoteCheck'), $buffer);
+		// Ссылка на другой раздел
+		$buffer = preg_replace_callback('/&gt;&gt;\/([a-z]+)\//', array(&$this, 'BoardLinkCallback'), $buffer);
+		// Ссылка на пост в пределе раздела
+		$buffer = preg_replace_callback('/&gt;&gt;([r]?[l]?[f]?[q]?[0-9,\-,\,]+)/', array(&$this, 'PostLinkCallback'), $buffer);
+		// Ссылка на пост в другом разделе
+		$buffer = preg_replace_callback('/&gt;&gt;\/([a-z]+)\/([0-9]+)/', array(&$this, 'InterPostLinkCallback'), $buffer);
 
 		return $buffer;
 	}
-	function InterthreadQuoteCheck($matches) {
+	// Ссылка на другой раздел
+	function BoardLinkCallback($matches) {
 		$lastchar = '';
 		// If the quote ends with a , or -, cut it off.
 		if(substr($matches[0], -1) == "," || substr($matches[0], -1) == "-") {
@@ -40,24 +50,82 @@ class Parse {
 			$matches[0] = substr($matches[0], 0, -1);
 		}
 		
-		$url =  \Phalcon\DI\FactoryDefault::getDefault()->getShared('url');
-		$post = \Post::findFirstById($matches[1]);
+		$board = \Chan::findFirst(
+			[ 'slug = :slug:',
+				'bind' => [ 'slug' => $matches[1]]
+			]
+		);
 
-		if ( $post )
-		    $link = \Phalcon\Tag::linkTo([
-		    	$url->get([ 'for' => 'thread-link', 'board' => $post->board, 'id' => ($post->parent == 0 ? $post->id : $post->parent) ]).'#'.$post->id,
-		    	'&gt;&gt;' . $post->id,
-		    	'class' => ($post->parent == 0 ? 'op_post' : '')
-		    ]);
+		if ( $board )
+			$link = \Phalcon\Tag::linkTo([
+				$this->url->get([ 'for' => 'board-link', 'board' => $board->slug]),
+				'&gt;&gt;' . '/' . $board->slug . '/'
+			]);
 		else
-			$link = "&gt;&gt;".$matches[1];
+			$link = '&gt;&gt;' . '/' . $matches[1] . '/';
 			
 		return $link.$lastchar;
 	}
-	
+	// Ссылка на пост в пределе раздела
+	function PostLinkCallback($matches) {
+		global $thread_id, $board_slug;
+
+		$lastchar = '';
+		// If the quote ends with a , or -, cut it off.
+		if(substr($matches[0], -1) == "," || substr($matches[0], -1) == "-") {
+			$lastchar = substr($matches[0], -1);
+			$matches[1] = substr($matches[1], 0, -1);
+			$matches[0] = substr($matches[0], 0, -1);
+		}
+		
+		$post = \Post::findFirst(
+			[ 'id = :id: and board = :board:',
+				'bind' => [ 'id' => $matches[1], 'board' => $this->board_slug]
+			]
+		);
+
+		if ( $post )
+			$link = \Phalcon\Tag::linkTo([
+				$this->url->get([ 'for' => 'thread-link', 'board' => $post->board, 'id' => ($post->parent == 0 ? $post->id : $post->parent) ]).'#'.$post->id,
+				'&gt;&gt;' . $post->id,
+				'class' => ($post->parent == 0 ? 'op_post' : '')
+			]);
+		else
+			$link = '&gt;&gt;' . $matches[1];
+			
+		return $link.$lastchar;
+	}
+	// Ссылка на пост в другом разделе
+	function InterPostLinkCallback($matches) {
+		$lastchar = '';
+		// If the quote ends with a , or -, cut it off.
+		if(substr($matches[0], -1) == "," || substr($matches[0], -1) == "-") {
+			$lastchar = substr($matches[0], -1);
+			$matches[1] = substr($matches[1], 0, -1);
+			$matches[0] = substr($matches[0], 0, -1);
+		}
+		
+		$post = \Post::findFirst(
+			[ 'id = :id: and board = :board:',
+				'bind' => [ 'id' => $matches[2], 'board' => $matches[1]]
+			]
+		);
+
+		if ( $post )
+			$link = \Phalcon\Tag::linkTo([
+				$this->url->get([ 'for' => 'thread-link', 'board' => $post->board, 'id' => ($post->parent == 0 ? $post->id : $post->parent) ]).'#'.$post->id,
+				'&gt;&gt;' . '/' . $post->board . '/' . $post->id,
+				'class' => ($post->parent == 0 ? 'op_post' : '')
+			]);
+		else
+			$link = '&gt;&gt;' . '/' . $matches[1] . '/' . $matches[2];
+			
+		return $link.$lastchar;
+	}
+
 	/* ББ коды
 	 ================================== */
-	function BBCode($string){
+	function MakeBBCode($buffer){
 		$patterns = array(
 			'`\*\*(.+?)\*\*`is',
 			'`\*(.+?)\*`is',
@@ -69,7 +137,7 @@ class Parse {
 			'`\[u\](.+?)\[/u\]`is', 
 			'`\[s\](.+?)\[/s\]`is', 
 			'`\[spoiler\](.+?)\[/spoiler\]`is', 
-			);
+		);
 		$replaces =  array(
 			'<b>\\1</b>', 
 			'<i>\\1</i>',
@@ -81,13 +149,13 @@ class Parse {
 			'<span class="underline">\\1</span>', 
 			'<strike>\\1</strike>', 
 			'<span class="spoiler">\\1</span>', 
-			);
-		$string = preg_replace($patterns, $replaces, $string);
-		$string = preg_replace_callback('`\[code\](.+?)\[/code\]`is', array(&$this, 'code_callback'), $string);
+		);
+		$buffer = preg_replace($patterns, $replaces, $buffer);
+		$buffer = preg_replace_callback('`\[code\](.+?)\[/code\]`is', array(&$this, 'CodeCallback'), $buffer);
 		
-		return $string;
+		return $buffer;
 	}
-	function code_callback($matches) {
+	function CodeCallback($matches) {
 		$return = '<pre><code>'	. str_replace('<br />', '', $matches[1]) . '</code></pre>';
 		
 		return $return;
@@ -109,7 +177,14 @@ class Parse {
 			return $buffer;
 	}
 
-	function Make($message) {
+	/**
+	 * General function
+	 */
+	function Make($message, $board_slug, $thread_id) {
+		// Пока что не знаю зачем
+		$this->board_slug = $board_slug;
+		$this->thread_id = $thread_id;
+
 		// Чистим вилкой
 		$message = trim($message);
 		$message = htmlspecialchars($message, ENT_QUOTES);
@@ -120,7 +195,7 @@ class Parse {
 		// Замена переносов
 		$message = str_replace("\n", '<br />', $message);
 		// ББ коды
-		$message = $this->BBCode($message);
+		$message = $this->MakeBBCode($message);
 		// Ссылки
 		$message = $this->MakeLink($message);
 		// Убираем лишние переносы

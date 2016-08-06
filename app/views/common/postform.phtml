@@ -1,10 +1,8 @@
-<?php use Phalcon\Tag as Tag; ?>
-
 <?php $form_name = (isset($thread_id) && $thread_id != 0) ? 'Ответ в тред': 'Cоздать тред'; ?>
 
-<?= Tag::form([ $this->url->get([ 'for' => 'add-link', 'board' => $board->slug ]), 'class' => 'form', 'data-ajax' => 'true', 'id' => 'form' ]) ?>
+<?=  $this->tag->form([ $this->url->get([ 'for' => 'add-link', 'board' => $board->slug ]), 'class' => 'form', 'data-ajax' => 'true', 'id' => 'form' ]) ?>
 
-	<?= Tag::hiddenField([ "yarn", "value" => $thread_id ]) ?>
+	<?=  $this->tag->hiddenField([ "yarn", "value" => $thread_id ]) ?>
 	
 	<p class="form-name"><?= $form_name; ?></p>
 	
@@ -14,16 +12,13 @@
 	</div>
 
 	<div class="form-control">
-		<textarea name="shampoo" id="shampoo" rows="10" placeholder="Пост" tabindex="2"></textarea>
+		<textarea name="shampoo" id="shampoo" rows="6" placeholder="Пост" tabindex="2"></textarea>
 	</div>
 	
 	<div class="form-control">
-		<span class="filepick">
-			Прикрепить картинку (Не работает)
-		</span>
-		<span class="checkbox right">
+		<span class="checkbox">
 			<label><input type="checkbox" name="sage" tabindex="4"> Sage</label>
 		</span>
 	</div>
 
-<?= Tag::endForm() ?>
+<?=  $this->tag->endForm() ?>

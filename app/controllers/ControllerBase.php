@@ -1,36 +1,55 @@
 <?php
 
-use \Phalcon\Mvc\View as View;
-
 class ControllerBase extends \Phalcon\Mvc\Controller
 {
-	public function onConstruct()
+	public function initialize()
 	{
 		$this->tag->setAutoescape(false);
 		$this->tag->setDocType(Phalcon\Tag::HTML5);
+		$this->tag->setFavicon($this->config->site->favicon);
 		$this->tag->setTitleSeparator(' - ');
+		$this->tag->setGenerator('Phalcaba ' . $this->config->application->version);
 
 		// Записываем метатеги
 		$this->tag->setTitle($this->config->site->title);
 		$this->tag->setDescription($this->config->site->description);
 		$this->tag->setKeywords($this->config->site->keywords);
 
+		$this->assets
+			 ->collection('app-js')
+
+			 ->addJs('https://code.jquery.com/jquery-3.0.0.min.js', false, false)
+			 ->addJs('assets/js/jquery.ambiance.js')
+			 ->addJs('assets/js/jquery.cryApi.js')
+			 ->addJs('assets/js/main.js')/*
+
+			 ->setTargetPath('assets/app.js')
+			 ->setTargetUri('assets/app.js')
+			 
+			 ->join(true)
+			 ->addFilter(new Phalcon\Assets\Filters\Jsmin())*/;
+
+		$this->assets
+			 ->collection('app-css')
+
+			 ->addCss('https://fonts.googleapis.com/css?family=Open+Sans:300,400,600&amp;subset=latin,cyrillic-ext', false, false)
+			 ->addCss('assets/css/reset.css')
+			 ->addCss('assets/css/style.css')/*
+
+			 ->setTargetPath('assets/app.css')
+			 ->setTargetUri('assets/app.css')
+
+			 ->join(true)
+			 ->addFilter(new Phalcon\Assets\Filters\Cssmin())*/;
+
 		// Список всех досок
 		$this->boards = Chan::find('hide != 1');
+		$this->pages  = Page::find();
 		$this->view->setVars([
-		    'boards' => $this->boards
+			'boards'  => $this->boards,
+			'pages'   => $this->pages
 		]);
-		
-		$this->assets
-			 ->collection('js')
-			 ->addJs('//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js', false)
-			 ->addJs('js/jquery.ambiance.js')
-			 ->addJs('js/main.js');
-		$this->assets
-			 ->collection('css')
-			 ->addCss('//fonts.googleapis.com/css?family=Open+Sans:300,400&amp;subset=latin,cyrillic-ext', false)
-			 ->addCss('css/reset.css')
-			 ->addCss('css/style.css');
+
 			 
 	}
 	/*
@@ -45,15 +64,10 @@ class ControllerBase extends \Phalcon\Mvc\Controller
 	}
 	public function _returnNotFound()
 	{
-		return $this->dispatcher->forward([
-			'controller' => 'pages',
-			'action' => 'show404'
-		]);
+		$this->tag->prependTitle('Страница не найдена - контроллер');
+		$this->response->setStatusCode(404, "Not Found");
+		//	
+		$this->dispatcher->setControllerName('page');
+		$this->dispatcher->setActionName('show404');
 	}
-	public function _returnNoThreads()
-	{
-		$this->view->disableLevel(View::LEVEL_ACTION_VIEW);
-		$this->view->partial("partial/nothread");
-	}
-
 }
