@@ -11,7 +11,7 @@ class Chan extends ModelBase
 	
 	public $description;
 	
-	public $hide;
+	public $isHide;
 	
 	public $isLocked;
 	

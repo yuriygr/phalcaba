@@ -29,7 +29,7 @@ class NotFoundPlugin extends Plugin
 				case Dispatcher::EXCEPTION_HANDLER_NOT_FOUND:
 				case Dispatcher::EXCEPTION_ACTION_NOT_FOUND:
 					$dispatcher->forward(array(
-						'controller' => 'pages',
+						'controller' => 'page',
 						'action' => 'show404'
 					));
 					return false;

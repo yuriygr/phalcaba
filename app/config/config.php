@@ -2,7 +2,7 @@
 
 $config =  new \Phalcon\Config([
 	'site' => [
-		'favicon'			=> '/assert/favicon.ico',
+		'favicon'			=> '/assets/favicon.ico',
 		'title'				=> 'Phalcaba',
 		'description'		=> 'Open. Free. Clear.',
 		'keywords'			=> 'Движок, чан, изображения, анонимность, АИБ, форум, открытый',
@@ -10,22 +10,24 @@ $config =  new \Phalcon\Config([
 		// Кол-во ответов к треду на главной странице
 		'replyLimit'		=> '4',
 		// Кол-во тредов на странице
-		'threadLimit'		=> '10',
+		'threadLimit'		=> '15',
 		// Кол-во постов в треде
-		'postLimit'			=> '500',
+		'postLimit'			=> '501',
 		// Кол-во символов в заголовке
-		'subjectLimit'		=> '60',
+		'subjectLimit'		=> '65',
 		// Имя по умолчанию
 		'defalutName'		=> 'Аноним',
 		// Разрешённые к загрузке файлы
-		'allowedFormats'	=> 'jpg, jpeg, png, gif'
+		'allowedFiles' 		=> 'jpg, jpeg, png, gif',
+		// Сколько файлов можно аттачить к посту
+		'countFiles' 		=> '2'
 	],
 	'database' => [
 		'adapter'			=> 'Mysql',
 		'host'				=> 'localhost',
 		'username'			=> '',
 		'password'			=> '',
-		'name'				=> 'chan',
+		'name'				=> '',
 		'charset'			=> 'utf8',
 	],
 	'redis' => [
@@ -34,14 +36,14 @@ $config =  new \Phalcon\Config([
 		'lifetime'			=> 129600,
 	],
 	'application' => [
-		'controllersDir'	=> APP_DIR . '/controllers/',
-		'modelsDir'			=> APP_DIR . '/models/',
-		'viewsDir'			=> APP_DIR . '/views/',
-		'libraryDir'		=> APP_DIR . '/library/',
-		'pluginsDir'		=> APP_DIR . '/plugins/',
-		'cacheDir'			=> APP_DIR . '/../cache/',
+		'controllersDir'	=> APP_DIR  . '/controllers/',
+		'modelsDir'			=> APP_DIR  . '/models/',
+		'viewsDir'			=> APP_DIR  . '/views/',
+		'libraryDir'		=> APP_DIR  . '/library/',
+		'pluginsDir'		=> APP_DIR  . '/plugins/',
+		'cacheDir'			=> BASE_DIR . '/cache/',
 		'baseUri'			=> '/',
-		'cryptSalt'			=> 'e*A&SSd*d8s78d($D',
-		'version'			=> '1.0',
+		'cryptSalt'			=> 'KEY',
+		'version'			=> '1.0.3',
 	],
 ]);

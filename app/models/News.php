@@ -1,5 +1,7 @@
 <?php
 
+use \Phalcon\Utils\Timeformat as Timeformat;
+
 class News extends ModelBase
 {
 	
@@ -25,16 +27,21 @@ class News extends ModelBase
 	public function afterFetch()
 	{
 		// Дата атомного формата
-		$this->created_format = date(DATE_ATOM, $this->created_at);
+		$this->created_format = Timeformat::atom($this->created_at);
 
 		// Дата в приятном формате
 		if ($this->created_at)
-			$this->created_at = $this->formatDate($this->created_at);
+			$this->created_at = Timeformat::normal($this->created_at);
 
 		if ($this->modified_in)
-			$this->modified_in = $this->formatDate($this->modified_in);
+			$this->modified_in = Timeformat::normal($this->modified_in);
 	}
-	
+
+	public function getTitle()
+	{
+		return $this->title;
+	}
+
 	public function getContent()
 	{
 		return $this->content;

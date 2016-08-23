@@ -19,8 +19,7 @@
 			type: "default",
 			permanent: false,
 			timeout: 3,
-			fade: true,
-			width: 300
+			fade: true
 		};
 
 		var options = $.extend(defaults, options);
@@ -30,9 +29,6 @@
 		var note = $(window.document.createElement('div'))
 								.addClass("ambiance")
 								.addClass("ambiance-" + options['type']);
-
-		note.css({width: options['width']});
-
 
 		// Deal with adding the close feature or not.
 		if (!options['permanent']) {

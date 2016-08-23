@@ -86,31 +86,6 @@ $di->set('db', function() use ($config) {
  * Диспатчер
  */
 $di->set('dispatcher', function() use ($di) {
-		$evManager = $this->getShared('eventsManager');
-		$evManager->attach(
-			"dispatch:beforeException",
-			function($event, $dispatcher, $exception)
-			{
-				switch ($exception->getCode()) {
-					case \Phalcon\Mvc\Dispatcher::EXCEPTION_HANDLER_NOT_FOUND:
-					case \Phalcon\Mvc\Dispatcher::EXCEPTION_ACTION_NOT_FOUND:
-						$dispatcher->forward(
-							array(
-								'controller' => 'pages',
-								'action'     => 'show404',
-							)
-						);
-						return false;
-				}
-			}
-		);
-		$dispatcher = new \Phalcon\Mvc\Dispatcher();
-		$dispatcher->setEventsManager($evManager);
-		return $dispatcher;
-	},
-	true
-);/*
-$di->set('dispatcher', function() use ($di) {
 	$eventsManager = new \Phalcon\Events\Manager;
 
 	// Отлавливаем ошибку 404
@@ -119,7 +94,7 @@ $di->set('dispatcher', function() use ($di) {
 	$dispatcher = new \Phalcon\Mvc\Dispatcher();
 	$dispatcher->setEventsManager($eventsManager);
 	return $dispatcher;
-});*/
+});
 
 /**
  * Request
@@ -150,39 +125,47 @@ $di->set('flashSession', function() {
 /**
  * Start the session the first time some component request the session service
  */
-$di->set('session', function() use ($config) {
+$di->set('session', function() {
 	/*$session = new \Phalcon\Session\Adapter\Files();*/
 	/*$session = new \Phalcon\Session\Adapter\Redis([
         'path'		=> 'tcp://127.0.0.1:6379?weight=1',
 		'lifetime'  => 7200
     ]);*/
 	$session = new \Phalcon\Session\Adapter\Redis([
-		'host'       => $config->redis->host,
-		'port'       => $config->redis->port,
-		'lifetime'   => $config->redis->lifetime,
+		'host'       => $this->config->redis->host,
+		'port'       => $this->config->redis->port,
+		'lifetime'   => $this->config->redis->lifetime,
 	]);
 	$session->start();
 	return $session;
 });
 
 /**
- * Парсер
+ * WakabaMark parser
  */
 $di->set('parse', function() {
-	$parse = new \Phalcon\Utils\Parse;
+	$parse = new \Phalcon\Utils\Parse();
 	return $parse;
 });
 
-$di->set('crypt', function () use ($config) {
+/**
+ * Crypt
+ */
+$di->set('crypt', function () {
 	$crypt = new \Phalcon\Crypt();
-	$crypt->setKey($config->application->cryptSalt);
+	$crypt->setKey($this->config->application->cryptSalt);
 	return $crypt;
 });
 
 
+$di->set('uploader', function () {
+	$uploader = new \Uploader\Uploader();
+	return $uploader;
+});
+
 /**
  * New Tag
- */	
+ */
 $di->set('tag', function() {
 	return new \Phalcon\NTag();
 });

@@ -19,7 +19,7 @@ class Page extends ModelBase
 
 	public $modified_in;
 
-	public $is_comment;
+	public $isComments;
 
 	// Meta-tag
 

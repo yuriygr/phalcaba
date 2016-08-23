@@ -6,9 +6,9 @@ use \Phalcon\Mvc\View as View;
 class ChanController extends ControllerBase
 {
 
-    public function initialize()
-    {
-    	parent::initialize();
+	public function initialize()
+	{
+		parent::initialize();
 
 		$this->board_param 	= $this->dispatcher->getParam('board', 'string');
 		$this->thread_param	= $this->dispatcher->getParam('id', 'int', '0');
@@ -24,9 +24,9 @@ class ChanController extends ControllerBase
 			return $this->_returnNotFound();
 			
 		$this->tag->setTitle($this->board->name);
-    }
-    
- 	public function addAction()
+	}
+	
+	public function addAction()
 	{
 		$this->view->disable();
 		
@@ -41,6 +41,8 @@ class ChanController extends ControllerBase
 			$kasumi 	= $this->filter->sanitize($kasumi, 'striptags');
 			$kasumi 	= $e->escapeHtml($kasumi);
 			
+			$name 		= null;
+
 			$shampoo 	= $this->request->getPost('shampoo');
 			$shampoo	= $this->filter->sanitize($shampoo, 'striptags');
 			$shampoo	= $this->parse->make($shampoo, $board_slug, $yarn);
@@ -86,8 +88,9 @@ class ChanController extends ControllerBase
 
 
 			$post = new Post();
-			$post->subject		=	$kasumi;
+			$post->subject		=	$kasumi ? $kasumi : null;
 			$post->timestamp 	=	time();
+			$post->name			=	$name;
 			$post->text			=	$shampoo;
 			$post->type 		= 	($yarn == 0) ? 'thread' : 'reply';
 			$post->parent 		= 	$yarn;
@@ -112,21 +115,22 @@ class ChanController extends ControllerBase
 					if (!$thread->update())
 						return $this->_returnJson([ 'error' => 'Тред не бампнут, но пост прошёл' ]);
 				}
-				
+
 				// Редиректим куда нибудь после поста
-				if ($post->parent != 0)
+				if ($post->parent != 0) {
 					// Если добавляется пост, то редирект на пост / TODO: обновляем тред	
 					return $this->_returnJson([
 						'success' => 'Пост отправлен',
 						'sendPost' => ['threadId' => $post->parent, 'postId' => $post->id ],
-						'redirect' => $this->url->get([ 'for' => 'thread-link', 'board' => $post->board, 'id' => $post->parent ])
+						'redirect' => $this->url->get([ 'for' => 'chan-thread-link', 'board' => $post->board, 'id' => $post->parent ])
 					]);
-				else
+				} else {
 					// Если создаётся тред, то редирект
 					return $this->_returnJson([
 						'success' => 'Тред создан, перенаправляю',
-						'redirect' => $this->url->get([ 'for' => 'thread-link', 'board' => $post->board, 'id' => $post->id ])
+						'redirect' => $this->url->get([ 'for' => 'chan-thread-link', 'board' => $post->board, 'id' => $post->id ])
 					]);
+				}
 				
 			// Если не добавился пост
 			} else {
@@ -161,16 +165,17 @@ class ChanController extends ControllerBase
 
 		// Название раздела
 		$this->tag->prependTitle('/' . $this->board->slug . '/');
+		
 		// Описание раздела, если есть
 		if ($this->board->description)
 			$this->tag->setDescription($this->board->description);
 		
 		// Передаём переменные борда, номер треда и треды
-        $this->view->setVars([
-            'board' 	=> $this->board,
-            'thread_id' => $this->thread_param,
-            'threads' 	=> $threads
-        ]);
+		$this->view->setVars([
+			'board' 	=> $this->board,
+			'thread_id' => $this->thread_param,
+			'threads' 	=> $threads
+		]);
 	}
 	
 	public function threadAction()
@@ -193,16 +198,17 @@ class ChanController extends ControllerBase
 
 		// Название треда
 		$this->tag->prependTitle($thread->subject ? $thread->subject : 'Thread #'.$thread->id);
+
 		// Описание раздела, если есть
 		if ($this->board->description)
 			$this->tag->setDescription($this->board->description);
 
 		// Передаём переменную содержащую борду, номер треда и тред
-        $this->view->setVars([
-            'board' 	=> $this->board,
-            'thread_id' => $this->thread_param,
-            'thread' 	=> $thread
-        ]);
+		$this->view->setVars([
+			'board' 	=> $this->board,
+			'thread_id' => $this->thread_param,
+			'thread' 	=> $thread
+		]);
 	}
 	
 	public function catalogAction()
@@ -226,29 +232,35 @@ class ChanController extends ControllerBase
 		$this->tag->prependTitle('Сatalog');
 		
 		// Передаём переменную содержащую раздел и тред
-        $this->view->setVars([
-            'board' 	=> $this->board,
-            'thread_id' => $this->thread_param,
-            'threads' 	=> $threads
-        ]);
+		$this->view->setVars([
+			'board' 	=> $this->board,
+			'thread_id' => $this->thread_param,
+			'threads' 	=> $threads
+		]);
 	}
 	
-	private function _addImageToPost($postId) {
-		if($this->request->hasFiles() == true) {
-			mkdir('images/' . $postId, 0777);
-			foreach($this->request->getUploadedFiles() as $file) {
-				$images = new Images();
-				$images->postId = $postId;
-				$explodedName = explode('.', $file->getName());
-				$extension = end($explodedName);
-				$images->extension = $extension;
-				if($images->save()) {
-					$file->moveTo('images/' . $postId . '/' . $images->imageId . '.' . $extension);
-				}
-			}
-		}
-		return true;
-	
+	public function filesAction()
+	{
+		// Если нет такого раздела - разворачиваемся и уходим
+		if (!$this->board)
+			return $this->_returnNotFound();
+
+		// Поиск файлов
+		$files = File::find(
+			[ 'board = :board:', 'bind' => [
+				'board' => $this->board_param
+			]]
+		);
+		
+		// Название каталога
+		$this->tag->prependTitle('Files');
+		
+		// Передаём переменную содержащую раздел и тред
+		$this->view->setVars([
+			'board' 	=> $this->board,
+			'thread_id' => $this->thread_param,
+			'files' 	=> $files
+		]);
 	}
-	
+
 }

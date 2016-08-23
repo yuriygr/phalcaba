@@ -1,10 +1,8 @@
 <?php $form_name = (isset($thread_id) && $thread_id != 0) ? 'Ответ в тред': 'Cоздать тред'; ?>
 
-<?=  $this->tag->form([ $this->url->get([ 'for' => 'add-link', 'board' => $board->slug ]), 'class' => 'form', 'data-ajax' => 'true', 'id' => 'form' ]) ?>
+<?=  $this->tag->form([ $this->url->get([ 'for' => 'chan-add-link', 'board' => $board->slug ]), 'class' => 'form', 'data-ajax' => 'true', 'enctype' => 'multipart/form-data', 'id' => 'form' ]) ?>
 
 	<?=  $this->tag->hiddenField([ "yarn", "value" => $thread_id ]) ?>
-	
-	<p class="form-name"><?= $form_name; ?></p>
 	
 	<div class="form-control">
 		<input class="input" type="text" id="kasumi" name="kasumi" placeholder="Тема" tabindex="1" />
@@ -14,11 +12,17 @@
 	<div class="form-control">
 		<textarea name="shampoo" id="shampoo" rows="6" placeholder="Пост" tabindex="2"></textarea>
 	</div>
-	
+	<div class="form-control">
+		<input type="file" name="file" class="">
+	</div>
+
 	<div class="form-control">
 		<span class="checkbox">
 			<label><input type="checkbox" name="sage" tabindex="4"> Sage</label>
 		</span>
+		<span class="form-name right"><?= $form_name; ?></span>
 	</div>
+
+	
 
 <?=  $this->tag->endForm() ?>

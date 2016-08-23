@@ -7,15 +7,17 @@ class PageController extends ControllerBase
 		$this->view->disableLevel(Phalcon\Mvc\View::LEVEL_LAYOUT);
 
 		$slogan = Phalcon\Text::dynamic("
-			{Все для тебя|Твоя анонимность|Твоя рулетка|Твой чятик|Сиди тут|Смейся|Мята},
-			{Карасик|Отец|>Анон|Собака|Покемон|ЕФГ|Виталик|Зой}
+			{Все для тебя|Твоя анонимность|Твоя рулетка|Твой чятик|Сиди тут|Смейся|Мята|Зачем тебе картинки},
+			{Карасик|Голова Отца|>Анон|Собака|Покемон|ЕФГ|Виталик|Зой}
 		");
-		$this->view->setVar('slogan', $slogan);
+		$this->view->setVars([
+			'slogan'  => $slogan
+		]);
 	}
 
 	public function show404Action()
 	{
-		$this->tag->prependTitle('Страница не найдена - контроллер');
+		$this->tag->prependTitle('Страница не найдена');
 		$this->response->setStatusCode(404, "Not Found");
 	}
 

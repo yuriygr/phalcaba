@@ -41,6 +41,11 @@ class Timeformat
 		}
 		return $datetime.$postMinute;
 	}
+
+	public static function normal($timestamp)
+	{
+		return date("d.m.Y H:i", $timestamp);
+	}
 	public static function atom($timestamp)
 	{
 		return date(DATE_ATOM, $timestamp);

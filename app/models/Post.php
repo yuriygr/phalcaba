@@ -1,5 +1,6 @@
 <?php
-use Phalcon\Tag as Tag;
+
+use \Phalcon\Utils\Timeformat as Timeformat;
 
 class Post extends ModelBase
 {
@@ -15,6 +16,8 @@ class Post extends ModelBase
 	public $subject;
 	
 	public $timestamp;
+
+	public $name;
 	
 	public $text;
 	
@@ -37,24 +40,22 @@ class Post extends ModelBase
 	{
 		$config 	=  $this->di->getDefault()->getConfig();
 		$url 		=  $this->di->getDefault()->getUrl();
-		$cookies 	=  $this->di->getDefault()->getCookies();
 
 		$this->name = isset($this->name) ? $this->name : $config->site->defalutName;
-		$this->time = $this->formatDate($this->timestamp);
+		$this->time = Timeformat::normal($this->timestamp);
 		// Ссылка на пост
-		$this->link = Tag::linkTo([
-			$url->get([ 'for' => 'thread-link', 'board' => $this->board, 'id' => ($this->parent == 0 ? $this->id : $this->parent) ]).'#'.$this->id,
+		$this->link = Phalcon\Tag::linkTo([
+			$url->get([ 'for' => 'chan-thread-link', 'board' => $this->board, 'id' => ($this->parent == 0 ? $this->id : $this->parent) ]).'#'.$this->id,
 			'#' . $this->id,
 			'data-reply' => $this->id,
 			'data-reply-thread' => ($this->parent == 0 ? $this->id : $this->parent)
 		]);
 		// Ссылка на открытие треда
-		$this->open = Tag::linkTo([
-			$url->get([ 'for' => 'thread-link', 'board' => $this->board, 'id' => $this->id ]),
+		$this->open = Phalcon\Tag::linkTo([
+			$url->get([ 'for' => 'chan-thread-link', 'board' => $this->board, 'id' => $this->id ]),
 			'[Открыть]',
 			'data-thread-open' => $this->id
 		]);
-		$this->isHide = null;
 	}
 	// Кол-во ответов
 	public function countReply()

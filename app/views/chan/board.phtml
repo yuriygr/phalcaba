@@ -1,22 +1,26 @@
-<?php foreach ($threads->items as $thread) { ?>
-	<div class="thread-box" data-type="thread-<?= $thread->id?>">
-		<?php 
-			$this->partial("partial/thread", [ 'thread' => $thread, 'open' => false ]);
-			foreach ($thread->getReply($this->config->site->replyLimit) as $post)
-	            $this->partial("partial/post", [ 'post' => $post ]);
-		?>
-	</div>
-	<hr>
-<?php } ?>
+<div class="board-content">
 
-<?php if (!$threads->items) { ?>
-	<h3>В этом разделе нет тредов</h3>
-	<p>Удивительно, но такое возможно. Ты можешь исравить ситуацию создав первый тред. Слови ГЕТ.</p>
-	<hr>
-<?php } ?>
+	<?php foreach ($threads->items as $thread) { ?>
+		<div class="thread-box" data-type="thread-<?= $thread->id?>">
+			<?php 
+				$this->partial("common/chan_thread", [ 'thread' => $thread, 'open' => false ]);
+				foreach ($thread->getReply($this->config->site->replyLimit) as $post)
+					$this->partial("common/chan_post", [ 'post' => $post ]);
+			?>
+		</div>
+		<hr>
+	<?php } ?>
+
+	<?php if (!$threads->items) { ?>
+		<h3>В этом разделе нет тредов</h3>
+		<p>Удивительно, но такое возможно. Ты можешь исравить ситуацию создав первый тред. Слови GET 1.</p>
+		<hr>
+	<?php } ?>
+
+</div>
 
 <div class="board-nav">
-<?php if ($threads->first != $threads->total_pages) { ?>
+<?php if ($threads->first != $threads->total_pages && $threads->total_pages > 0) { ?>
 	<span class="pagination">
 	<?php if ($threads->current != $threads->first)
 		echo $this->tag->linkTo([
@@ -39,6 +43,13 @@
 		<?= $this->tag->linkTo([
 			$this->url->get([ 'for' => 'chan-catalog-link', 'board' => $board->slug ]),
 			'Каталог',
+			'class' => 'btn'
+		]); ?>
+	</span>
+	<span>
+		<?= $this->tag->linkTo([
+			$this->url->get([ 'for' => 'chan-files-link', 'board' => $board->slug ]),
+			'Файлы',
 			'class' => 'btn'
 		]); ?>
 	</span>

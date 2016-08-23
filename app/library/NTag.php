@@ -63,7 +63,7 @@ class NTag extends \Phalcon\Tag
 			return '<meta name="generator" content="' . self::$generator . '">'."\r\n";
 	}
 
-	private function _cleanText($string)
+	public function _cleanText($string)
 	{
 		// Чистим текст
 		$filter =  \Phalcon\DI\FactoryDefault::getDefault()->getShared('filter');

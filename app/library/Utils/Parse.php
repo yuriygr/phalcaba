@@ -31,40 +31,14 @@ class Parse extends Component {
 	/* Ссылка на пост
 	 ================================== */	
 	function MakePostLink($buffer) {
-		// Ссылка на другой раздел
-		$buffer = preg_replace_callback('/&gt;&gt;\/([a-z]+)\//', array(&$this, 'BoardLinkCallback'), $buffer);
 		// Ссылка на пост в пределе раздела
 		$buffer = preg_replace_callback('/&gt;&gt;([r]?[l]?[f]?[q]?[0-9,\-,\,]+)/', array(&$this, 'PostLinkCallback'), $buffer);
 		// Ссылка на пост в другом разделе
 		$buffer = preg_replace_callback('/&gt;&gt;\/([a-z]+)\/([0-9]+)/', array(&$this, 'InterPostLinkCallback'), $buffer);
+		// Ссылка на другой раздел
+		$buffer = preg_replace_callback('/&gt;&gt;\/([a-z]+)\//', array(&$this, 'BoardLinkCallback'), $buffer);
 
 		return $buffer;
-	}
-	// Ссылка на другой раздел
-	function BoardLinkCallback($matches) {
-		$lastchar = '';
-		// If the quote ends with a , or -, cut it off.
-		if(substr($matches[0], -1) == "," || substr($matches[0], -1) == "-") {
-			$lastchar = substr($matches[0], -1);
-			$matches[1] = substr($matches[1], 0, -1);
-			$matches[0] = substr($matches[0], 0, -1);
-		}
-		
-		$board = \Chan::findFirst(
-			[ 'slug = :slug:',
-				'bind' => [ 'slug' => $matches[1]]
-			]
-		);
-
-		if ( $board )
-			$link = \Phalcon\Tag::linkTo([
-				$this->url->get([ 'for' => 'board-link', 'board' => $board->slug]),
-				'&gt;&gt;' . '/' . $board->slug . '/'
-			]);
-		else
-			$link = '&gt;&gt;' . '/' . $matches[1] . '/';
-			
-		return $link.$lastchar;
 	}
 	// Ссылка на пост в пределе раздела
 	function PostLinkCallback($matches) {
@@ -86,7 +60,7 @@ class Parse extends Component {
 
 		if ( $post )
 			$link = \Phalcon\Tag::linkTo([
-				$this->url->get([ 'for' => 'thread-link', 'board' => $post->board, 'id' => ($post->parent == 0 ? $post->id : $post->parent) ]).'#'.$post->id,
+				$this->url->get([ 'for' => 'chan-thread-link', 'board' => $post->board, 'id' => ($post->parent == 0 ? $post->id : $post->parent) ]).'#'.$post->id,
 				'&gt;&gt;' . $post->id,
 				'class' => ($post->parent == 0 ? 'op_post' : '')
 			]);
@@ -113,7 +87,7 @@ class Parse extends Component {
 
 		if ( $post )
 			$link = \Phalcon\Tag::linkTo([
-				$this->url->get([ 'for' => 'thread-link', 'board' => $post->board, 'id' => ($post->parent == 0 ? $post->id : $post->parent) ]).'#'.$post->id,
+				$this->url->get([ 'for' => 'chan-thread-link', 'board' => $post->board, 'id' => ($post->parent == 0 ? $post->id : $post->parent) ]).'#'.$post->id,
 				'&gt;&gt;' . '/' . $post->board . '/' . $post->id,
 				'class' => ($post->parent == 0 ? 'op_post' : '')
 			]);
@@ -122,7 +96,33 @@ class Parse extends Component {
 			
 		return $link.$lastchar;
 	}
+	// Ссылка на другой раздел
+	function BoardLinkCallback($matches) {
+		$lastchar = '';
+		// If the quote ends with a , or -, cut it off.
+		if(substr($matches[0], -1) == "," || substr($matches[0], -1) == "-") {
+			$lastchar = substr($matches[0], -1);
+			$matches[1] = substr($matches[1], 0, -1);
+			$matches[0] = substr($matches[0], 0, -1);
+		}
+		
+		$board = \Chan::findFirst(
+			[ 'slug = :slug:',
+				'bind' => [ 'slug' => $matches[1]]
+			]
+		);
 
+		if ( $board )
+			$link = \Phalcon\Tag::linkTo([
+				$this->url->get([ 'for' => 'chan-board-link', 'board' => $board->slug]),
+				'&gt;&gt;' . '/' . $board->slug . '/'
+			]);
+		else
+			$link = '&gt;&gt;' . '/' . $matches[1] . '/';
+			
+		return $link.$lastchar;
+	}
+	
 	/* ББ коды
 	 ================================== */
 	function MakeBBCode($buffer){

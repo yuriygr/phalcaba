@@ -1,0 +1,31 @@
+{
+	"name": "yuriygr/phalcaba",
+	"description": "Phalcon image board, yo",
+	"version": "1.0.3",
+	"keywords": [
+		"phalcon",
+		"framework",
+		"sample app",
+		"blog",
+		"phalcaba"
+	],
+	"type": "library",
+	"license": "BSD-3",
+	"homepage": "https://github.com/yuriygr/phalcaba",
+	"authors" : [
+		{
+			"name" : "Yuriy Grinev",
+			"email" : "a1d516ac5f5d290@gmail.com"
+		}
+	],
+	"repositories": [
+		{
+			"type": "git",
+			"url": "https://github.com/yuriygr/phalcaba"
+		}
+	],
+	"require": {
+		"php": ">=5.5",
+		"ext-phalcon": ">=3.0.0"
+	}
+}

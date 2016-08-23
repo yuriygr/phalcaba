@@ -1,14 +1,19 @@
 <?php
 
-ini_set('display_errors',1);
-error_reporting(E_ALL);
-date_default_timezone_set('Europe/Moscow');
-
 try {
+	/**
+	 * Error catch
+	 */
+	ini_set('display_errors',1);
+	error_reporting(E_ALL);
+	date_default_timezone_set('Europe/Moscow');
+
     /**
      * Define App directory
      */
+	define('BASE_DIR', realpath('../'));
 	define('APP_DIR', realpath('../app'));
+	define('PUB_DIR', realpath('../public'));
 
 	/**
 	 * Read the configuration
@@ -19,6 +24,11 @@ try {
 	 * Read auto-loader
 	 */
 	include(APP_DIR . '/config/loader.php');
+
+	/**
+	 * Use composer autoloader to load vendor classes
+	 */
+	include(BASE_DIR . '/vendor/autoload.php');
 
 	/**
 	 * Read services

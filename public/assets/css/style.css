@@ -36,7 +36,7 @@ a:active {
 }
 a.op_post::after { content: " (OP)"; }
 
-.warp {margin: 0 20px;overflow: hidden;}
+.warp {margin: 0 20px; overflow: hidden; }
 
 .left { float: left; display: inline-block; }
 .right { float: right; display: inline-block; }
@@ -260,21 +260,20 @@ footer {
 pre {
 	background: #252525;
 	border: 1px solid #383838;
+	color: #EEE;
 	overflow: auto;
-	padding: 1em;
-	border-radius: 3px;
+	padding: 15px;
+	border-radius: 5px;
 	white-space: pre;
-	font-size: .85em;
+	font-size: 11px;
 }
 
 
 /* Form control
  ================================== */
 .form .form-name {
-	text-align: center;
-	display: block;
+	display: inline-block;
 	font-size: 13px;
-	margin: 5px 0;
 	color: #666;
 }
 .form .form-control {
@@ -346,6 +345,7 @@ textarea {
 	-o-border-radius: 4px;
 	border-radius: 4px;
 	resize: vertical;
+	vertical-align: top;
 	width: 100%;
 	font-size: 12px;
 }
@@ -355,7 +355,7 @@ textarea:hover, textarea:focus {background-color: #fefefe;border-color: #CCCCCC;
 .radio {
 	position: relative;
 	display: inline-block;
-	font-size: .9em;
+	font-size: 13px;
 }
 .checkbox input[type=checkbox],
 .radio input[type=radio] {
@@ -378,18 +378,20 @@ textarea:hover, textarea:focus {background-color: #fefefe;border-color: #CCCCCC;
 
 /* Media 
  ================================== */
-@media screen and (max-width: 923px) {
-	.page { width: 100%; }
-}
-@media screen and (max-width: 650px) {
-	.index-logo { font-size: 50px; width: 190px; }
+@media screen and (max-width: 725px) {
+	.warp {margin: 0 10px; }
+
+	.index__logo { font-size: 55px; width: 190px; }
+	.index__info { font-size: 25px; }
+
 	.page { font-size: .85em; }
-	.page .page-title { text-align: center; }
+
 	.board-add { width: 100%; }
 	#kasumi { width: 100%!important; }
 	#submit { width: 100%!important; margin: 4px 0 0 0; }
 	#shampoo { height: 100px; }
 	.subject { display: block; font-size: 16px; }
+
 	.post { margin: 1px 0; width: 100%; }
 	.post-file { display: block; float: none; }
 	.post-file a img { max-width: 130px; }
@@ -491,35 +493,4 @@ textarea:hover, textarea:focus {background-color: #fefefe;border-color: #CCCCCC;
 .ambiance-close:hover {
     color: #aaa;
     text-decoration: none;
-}
-
-
-/*
-	Dropdowns
-	=========================================================
-*/
-.dropdown {
-	position: relative;
-}
-.dropdown.open .dropdown_popup {
-	display: block;
-}
-.dropdown .dropdown_toggler {
-	position: relative;
-	text-align: center;
-}
-.dropdown .dropdown_popup {
-	position: absolute;
-	top: 0;
-	left: 0;
-	display: none;
-	overflow: hidden;
-    background: #1F1F1F;
-    border: 1px solid #383838;
-}
-.dropdown .dropdown_popup a {
-	padding: 5px 10px;
-	display: block;
-	white-space: nowrap;
-	text-decoration: none;
 }

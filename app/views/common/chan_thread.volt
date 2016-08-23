@@ -1,14 +1,11 @@
 <div class="post {{ thread.type}}" id="{{ thread.id}}">
 	<div class="post-info">
-	{% if (thread.isLocked or thread.isSticky or thread.isHide) %}
+	{% if (thread.isLocked or thread.isSticky) %}
 		{% if (thread.isLocked) %}
 			<span class="nyan nyan-locked" title="Locked"></span>
 		{% endif %}
 		{% if (thread.isSticky) %}
 			<span class="nyan nyan-sticky" title="Sticky"></span>
-		{% endif %}
-		{% if (thread.isHide) %}
-			<span class="nyan nyan-hide" title="Hide"></span>
 		{% endif %}
 	{% endif %}
 	{% if (thread.subject) %}
