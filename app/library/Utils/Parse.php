@@ -8,10 +8,29 @@ class Parse extends Component {
 	var $board_slug;
 	var $thread_id;
 
+	/**
+	 * Hastag
+	 */
+	function MakeHashTag($buffer)
+	{
+		$buffer = preg_replace_callback('/(\#)([0-9a-zA-ZА-Я-а-я\_]+)/', array(&$this, 'MakeHashTagCallback'), $buffer);
+
+		return $buffer;
+	}
+	function MakeHashTagCallback($matches) {
+		global $board_slug;
+
+		$link = \Phalcon\Tag::linkTo([
+			$this->url->get([ 'for' => 'chan-search-hashtag', 'board' => $this->board_slug, 'hashtag' => $matches[2] ]),
+			'#' . $matches[2]
+		]);
+
+		return $link;
+	}
 	/* Ссылки
 	 ================================== */
-	function MakeLink($buffer) {
-		/* Make http:// urls in posts clickable */
+	function MakeLink($buffer)
+	{
 		$buffer = preg_replace('#(http://|https://|ftp://)([^(\s<|\[)]*)#', '<a href="\\1\\2">\\1\\2</a>', $buffer);
 		
 		return $buffer;
@@ -35,8 +54,6 @@ class Parse extends Component {
 		$buffer = preg_replace_callback('/&gt;&gt;([r]?[l]?[f]?[q]?[0-9,\-,\,]+)/', array(&$this, 'PostLinkCallback'), $buffer);
 		// Ссылка на пост в другом разделе
 		$buffer = preg_replace_callback('/&gt;&gt;\/([a-z]+)\/([0-9]+)/', array(&$this, 'InterPostLinkCallback'), $buffer);
-		// Ссылка на другой раздел
-		$buffer = preg_replace_callback('/&gt;&gt;\/([a-z]+)\//', array(&$this, 'BoardLinkCallback'), $buffer);
 
 		return $buffer;
 	}
@@ -188,6 +205,8 @@ class Parse extends Component {
 		// Чистим вилкой
 		$message = trim($message);
 		$message = htmlspecialchars($message, ENT_QUOTES);
+		// Делаем хештеги
+		$message = $this->MakeHashTag($message);
 		// Ссылка на пост
 		$message = $this->MakePostLink($message);
 		// Цитата

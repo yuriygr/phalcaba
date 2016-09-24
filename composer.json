@@ -9,7 +9,7 @@
 		"blog",
 		"phalcaba"
 	],
-	"type": "library",
+	"type": "project",
 	"license": "BSD-3",
 	"homepage": "https://github.com/yuriygr/phalcaba",
 	"authors" : [

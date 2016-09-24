@@ -1,7 +1,15 @@
 <?php
-// Home
+
+/*
+	Page
+	==================================================================================
+*/
 $router->add( '/', 'Page::index' )
 	   ->setName('home-link');
+$router->add( '/page/{slug}', 'Page::show' )
+	   ->setName('page-link');
+$router->add( '/page/404', 'Page::show404' )
+	   ->setName('page-404');
 
 /*
 	Chan
@@ -24,15 +32,9 @@ $router->add( '/{board:[a-z]+}/catalog', 'Chan::catalog' )
 
 $router->add( '/{board:[a-z]+}/files', 'Chan::files' )
 	   ->setName('chan-files-link');
-	   
-/*
-	Page
-	==================================================================================
-*/
-$router->add( '/page/{slug}', 'Page::show' )
-	   ->setName('page-link');
-$router->add( '/page/404', 'Page::show404' )
-	   ->setName('page-404');
+
+$router->add( '/{board:[a-z]+}/search?hashtag={hashtag}', 'Search::index' )
+	   ->setName('chan-search-hashtag');
 
 /*
 	News
@@ -43,6 +45,7 @@ $router->add( '/news/', 'News::list' )
 
 $router->add( '/news/{slug}', 'News::show' )
 	   ->setName('news-link');
+
 
 // 404 page
 $router->notFound( 'Page::show404' );

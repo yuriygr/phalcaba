@@ -116,6 +116,17 @@ class ChanController extends ControllerBase
 						return $this->_returnJson([ 'error' => 'Тред не бампнут, но пост прошёл' ]);
 				}
 
+				// Загрузка картинок
+				/*if ($this->request->hasFiles() == true) {
+					if ($this->_addImageToPost()) {
+						$this->uploader->move();
+						return $this->_returnJson([ 'success' => 'Картинка прошла' ]);
+					} else {
+						return $this->_returnJson([ 'error' => 'Картинка не прошла' ]);
+					}
+					$this->uploader->truncate();
+				}*/
+
 				// Редиректим куда нибудь после поста
 				if ($post->parent != 0) {
 					// Если добавляется пост, то редирект на пост / TODO: обновляем тред	
@@ -263,4 +274,34 @@ class ChanController extends ControllerBase
 		]);
 	}
 
+
+
+
+	private function _addImageToPost() {
+		// setting up uloader rules
+		$this->uploader->setRules([
+			'directory' =>  '/file',
+			//or 'dynamic'   =>  '/files/'.$part.'/'.$userId, // added v1.4-beta
+			'minsize'   =>  1000,   // bytes
+			'maxsize'   =>  1000000,// bytes
+			'mimes'     =>  [       // any allowed mime types
+				'image/gif',
+				'image/jpeg',
+				'image/png',
+			],
+			'extensions'     =>  [  // any allowed extensions
+				'gif',
+				'jpeg',
+				'jpg',
+				'png',
+			],  
+
+			'sanitize' => true
+		]);
+
+		if ($this->uploader->isValid() === true)
+			return true;
+		else
+			return false;
+	}	
 }

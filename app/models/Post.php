@@ -53,7 +53,7 @@ class Post extends ModelBase
 		// Ссылка на открытие треда
 		$this->open = Phalcon\Tag::linkTo([
 			$url->get([ 'for' => 'chan-thread-link', 'board' => $this->board, 'id' => $this->id ]),
-			'[Открыть]',
+			'[Open]',
 			'data-thread-open' => $this->id
 		]);
 	}

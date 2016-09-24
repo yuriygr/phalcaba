@@ -51,7 +51,7 @@
 		// Work With File
 		expandFile: function( params ) {
 			// Если телефон, то нет смысла поп-апа
-			if ( $.core.isMobile )
+			//if ( $.core.isMobile )
 				return window.open(params['fileHref'],'_blank');
 
 			$.ambiance({ message: 'Файл типа ' +  params['fileType'] + ' и ссылкой ' +  params['fileHref'] + ' не развёрнут, так как я ничего не умею', type: 'error' });

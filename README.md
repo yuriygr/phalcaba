@@ -20,6 +20,10 @@ Get Started
 
     app/config/config.php
 
+После загрузки необходимо использовать:
+
+    php composer.phar install
+
 ### Ахтунг!
 
 Возможности постить картинки нет.

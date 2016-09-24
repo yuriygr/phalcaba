@@ -3,7 +3,7 @@
 $config =  new \Phalcon\Config([
 	'site' => [
 		'favicon'			=> '/assets/favicon.ico',
-		'title'				=> 'Phalcaba',
+		'title'				=> 'phalcaba',
 		'description'		=> 'Open. Free. Clear.',
 		'keywords'			=> 'Движок, чан, изображения, анонимность, АИБ, форум, открытый',
 
@@ -13,6 +13,8 @@ $config =  new \Phalcon\Config([
 		'threadLimit'		=> '15',
 		// Кол-во постов в треде
 		'postLimit'			=> '501',
+		// Кол-во новостей на страницу
+		'newsLimit'			=> '10',
 		// Кол-во символов в заголовке
 		'subjectLimit'		=> '65',
 		// Имя по умолчанию
@@ -43,7 +45,7 @@ $config =  new \Phalcon\Config([
 		'pluginsDir'		=> APP_DIR  . '/plugins/',
 		'cacheDir'			=> BASE_DIR . '/cache/',
 		'baseUri'			=> '/',
-		'cryptSalt'			=> 'KEY',
+		'cryptSalt'			=> 'SALT',
 		'version'			=> '1.0.3',
 	],
 ]);

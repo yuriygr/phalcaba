@@ -2,19 +2,13 @@
 
 class NewsController extends ControllerBase
 {
-	public function initialize()
-    {
-    	parent::initialize();
-    }
 	public function listAction()
 	{
-		$currentPage = $this->request->getQuery('page', 'int', 1);
-
-		// Параметры для выборки постов
-		$parameter = [ 'order' => 'created_at DESC' ];
+		$currentPage = $this->request->getQuery('page', 'int');
+		if ($currentPage <= 0) $currentPage = 1;
 
 		// Выбираем данные
-		$news = News::find($parameter);
+		$news = News::find([ 'order' => 'created_at DESC' ]);
 
 		// Проверка на наличие поста
 		if (!$news)
@@ -23,13 +17,13 @@ class NewsController extends ControllerBase
 		// Разделяем на страницы
 		$paginator = new \Phalcon\Paginator\Adapter\Model([
 			'data' 	=> $news,
-			'limit'	=> $this->config->site->postLimit,
+			'limit'	=> $this->config->site->newsLimit,
 			'page' 	=> $currentPage
 		]);
 		$news = $paginator->getPaginate();
 
 		// Создаем переменные для шаблона
-		$this->view->setVar('news', $news);
+		$this->view->setVar('newss', $newss);
 
 		// Устанавливаем заголовок
 		$this->tag->prependTitle('News');

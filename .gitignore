@@ -1,0 +1,5 @@
+# Ignore all vendor files included by composer and the lock file
+/vendor/*
+/cache/volt/*
+composer.lock
+composer.phar

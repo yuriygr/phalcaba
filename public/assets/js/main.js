@@ -127,4 +127,17 @@ $(document).on('click', 'a[data-file-expand]', function() {
 	// Разворачиваем файл
 	$.core.expandFile({ fileHref: fileHref, fileType: fileType  });
 	return false;
-});
+});/*
+$('a[data-file-expand]').magnificPopup({
+	type: 'image',
+	closeOnContentClick: true,
+	closeBtnInside: false,
+	fixedContentPos: true,
+	image: {
+		verticalFit: true
+	},
+	tLoading: 'Loading image #%curr%...',
+	gallery:{
+		enabled:true
+	}
+});*/

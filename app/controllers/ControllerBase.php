@@ -19,16 +19,30 @@ class ControllerBase extends \Phalcon\Mvc\Controller
 			 ->collection('app-js')
 
 			 ->addJs('https://code.jquery.com/jquery-3.0.0.min.js', false, false)
+			 ->addJs('https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/jquery.magnific-popup.min.js', false, false)
 			 ->addJs('assets/js/jquery.ambiance.js')
 			 ->addJs('assets/js/jquery.core.js')
-			 ->addJs('assets/js/main.js');
+			 ->addJs('assets/js/main.js')/*
+
+			 ->setTargetPath('assets/app.js')
+			 ->setTargetUri('assets/app.js')
+			 
+			 ->join(true)
+			 ->addFilter(new Phalcon\Assets\Filters\Jsmin())*/;
 
 		$this->assets
 			 ->collection('app-css')
 
 			 ->addCss('https://fonts.googleapis.com/css?family=Open+Sans:300,400,600&amp;subset=latin,cyrillic-ext', false, false)
+			 ->addCss('https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/magnific-popup.min.css', false, false)
 			 ->addCss('assets/css/reset.css')
-			 ->addCss('assets/css/style.css');
+			 ->addCss('assets/css/style.css')/*
+
+			 ->setTargetPath('assets/app.css')
+			 ->setTargetUri('assets/app.css')
+
+			 ->join(true)
+			 ->addFilter(new Phalcon\Assets\Filters\Cssmin())*/;
 
 		// Список всех досок
 		$this->boards = Chan::find('isHide != 1');

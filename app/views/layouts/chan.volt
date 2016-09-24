@@ -8,7 +8,7 @@
 		<div class="board-name">
 			{{ link_to(['for': 'chan-board-link', 'board': board.slug], board.name) }}
 			{% if (board.description) %}
-				<span class="board-desc"> - {{ board.description }}</span>
+				<span class="board-desc"> — {{ board.description }}</span>
 			{% endif %}
 		</div>
 		<hr>
