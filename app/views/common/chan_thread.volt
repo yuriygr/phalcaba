@@ -1,19 +1,17 @@
 <div class="post {{ thread.type}}" id="{{ thread.id}}">
 	<div class="post-info">
-	{% if (thread.isLocked or thread.isSticky) %}
-		{% if (thread.isLocked) %}
-			<span class="nyan nyan-locked" title="Locked"></span>
-		{% endif %}
-		{% if (thread.isSticky) %}
-			<span class="nyan nyan-sticky" title="Sticky"></span>
-		{% endif %}
+	{% if (thread.isLocked) %}
+		<span class="nyan nyan-locked" title="Locked"></span>
+	{% endif %}
+	{% if (thread.isSticky) %}
+		<span class="nyan nyan-sticky" title="Sticky"></span>
 	{% endif %}
 	{% if (thread.subject) %}
 		<span class="subject">{{ thread.subject }}</span>
 	{% endif %}
-		<span class="name">{{ thread.name }}</span>
-		<span class="time">{{ thread.time }}</span>
-		<span class="link">{{ thread.link }}</span>
+		<span class="name">{{ thread.getName() }}</span>
+		<span class="time">{{ thread.getTime() }}</span>
+		<span class="link">{{ thread.getNuberLink() }}</span>
 	{% if (open == false) %}
 		<span class="open">{{ thread.open }}</span>
 	{% endif %}
@@ -33,8 +31,12 @@
 	<div class="post-text">
 		{{ thread.text }}
 	</div>
+
 </div>
 {% if (thread.countReply() > config.site.replyLimit and open == false) %}
-	<div class="omitted">{{ tag.getOmitted(thread.countReply() - config.site.replyLimit) }}</div>
+	<div class="omitted">
+	{{ tag.getOmitted(thread.countReply() - config.site.replyLimit) }}
+	{{ link_to(['for': 'chan.thread.link', 'board': thread.board, 'id': thread.id ], 'Expand', 'data-thread-expand': thread.id) }}
+	</div>
 {% endif %}
 <div class="clear"></div>

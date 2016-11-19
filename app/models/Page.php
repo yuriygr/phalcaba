@@ -1,6 +1,8 @@
 <?php
 
-use \Phalcon\Utils\Timeformat as Timeformat;
+namespace Chan\Models;
+
+use \Phalcon\Utils\Timeformat;
 
 class Page extends ModelBase
 {
@@ -21,11 +23,13 @@ class Page extends ModelBase
 
 	public $isComments;
 
-	// Meta-tag
+	public $isHide;
 
+	// Meta-tag
 	public $meta_description;
 
 	public $meta_keywords;
+
 
 
 	public function initialize()

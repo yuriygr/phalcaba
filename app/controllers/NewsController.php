@@ -1,5 +1,9 @@
 <?php
 
+namespace Chan\Controllers;
+
+use \Chan\Models\News;
+
 class NewsController extends ControllerBase
 {
 	public function listAction()
@@ -23,7 +27,7 @@ class NewsController extends ControllerBase
 		$news = $paginator->getPaginate();
 
 		// Создаем переменные для шаблона
-		$this->view->setVar('newss', $newss);
+		$this->view->setVar('news', $news);
 
 		// Устанавливаем заголовок
 		$this->tag->prependTitle('News');

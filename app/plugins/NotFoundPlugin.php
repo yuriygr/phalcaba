@@ -37,7 +37,7 @@ class NotFoundPlugin extends Plugin
 		}
 
 		/*$dispatcher->forward(array(
-			'controller' => 'pages',
+			'controller' => 'page',
 			'action'     => 'show404'
 		));
 		return false;*/

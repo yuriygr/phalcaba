@@ -10,9 +10,9 @@ Get Started
 
 Для запуска приложения необходимы:
 
-* PHP >= 5.3.6
+* PHP >= 7.0.0
 * Apache Web Server с включёным mod_rewrite или Nginx.
-* Последняя версия Phalcon Framework
+* Последняя версия Phalcon Framework 3
 
 ### Конфигурация
 

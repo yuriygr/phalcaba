@@ -5,46 +5,89 @@
 	==================================================================================
 */
 $router->add( '/', 'Page::index' )
-	   ->setName('home-link');
+	   ->setName('chan.home');
 $router->add( '/page/{slug}', 'Page::show' )
-	   ->setName('page-link');
+	   ->setName('chan.page');
 $router->add( '/page/404', 'Page::show404' )
-	   ->setName('page-404');
+	   ->setName('chan.page.404');
+
+/*
+	News
+	==================================================================================
+*/
+$router->add( '/news', 'News::list' )
+	   ->setName('chan.news');
+
+$router->add( '/news/{slug}', 'News::show' )
+	   ->setName('chan.news.link');
 
 /*
 	Chan
 	==================================================================================
 */
 $router->add( '/{board:[a-z]+}/', 'Chan::board' )
-	   ->setName('chan-board-link');
+	   ->setName('chan.board');
 
 $router->add( '/{board:[a-z]+}/add', 'Chan::add' )
-	   ->setName('chan-add-link');
+	   ->setName('chan.thread.add');
 
 $router->add( '/{board:[a-z]+}/page/{page:[0-9]+}', 'Chan::board' )
-	   ->setName('chan-page-link');
+	   ->setName('chan.board.page');
 
 $router->add( '/{board:[a-z]+}/thread/{id:[0-9]+}', 'Chan::thread' )
-	   ->setName('chan-thread-link');
+	   ->setName('chan.thread.link');
 
 $router->add( '/{board:[a-z]+}/catalog', 'Chan::catalog' )
-	   ->setName('chan-catalog-link');
+	   ->setName('chan.board.catalog');
 
-$router->add( '/{board:[a-z]+}/files', 'Chan::files' )
-	   ->setName('chan-files-link');
+$router->add( '/{board:[a-z]+}/search', 'Chan::search' )
+	   ->setName('chan.search');
+$router->add( '/{board:[a-z]+}/search?hashtag={hashtag}', 'Chan::search' )
+	   ->setName('chan.search.hashtag');
 
-$router->add( '/{board:[a-z]+}/search?hashtag={hashtag}', 'Search::index' )
-	   ->setName('chan-search-hashtag');
 
+$router->add( '/settings', 'Chan::settings' )
+	   ->setName('chan.settings');
 /*
-	News
+	Panel
 	==================================================================================
 */
-$router->add( '/news/', 'News::list' )
-	   ->setName('news-list');
+$router->add( '/panel', [
+	'namespace'  => 'Chan\Controllers\Panel',
+	'controller' => 'Page',
+	'action'     => 'index',
+]);
+$router->add( '/panel/reports', [
+	'namespace'  => 'Chan\Controllers\Panel',
+	'controller' => 'Reports',
+	'action'     => 'index',
+]);
 
-$router->add( '/news/{slug}', 'News::show' )
-	   ->setName('news-link');
+/*
+	API
+	==================================================================================
+*/
+// Thread
+$router->add( '/api/expandThread', [
+	'namespace'  => 'Chan\Controllers\Api',
+	'controller' => 'Thread',
+	'action'     => 'expand',
+]);
+$router->add( '/api/refreshThread', [
+	'namespace'  => 'Chan\Controllers\Api',
+	'controller' => 'Thread',
+	'action'     => 'refresh',
+]);
+$router->add( '/api/hideThread', [
+	'namespace'  => 'Chan\Controllers\Api',
+	'controller' => 'Thread',
+	'action'     => 'hide',
+]);
+$router->add( '/api/unhideThread', [
+	'namespace'  => 'Chan\Controllers\Api',
+	'controller' => 'Thread',
+	'action'     => 'unhide',
+]);
 
 
 // 404 page

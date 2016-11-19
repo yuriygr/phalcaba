@@ -1,6 +1,10 @@
 <?php
 
-use \Phalcon\Utils\Timeformat as Timeformat;
+namespace Chan\Models;
+
+use \Phalcon\Utils\Timeformat;
+use \Phalcon\Mvc\Model\Relation;
+use \Phalcon\Tag;
 
 class Post extends ModelBase
 {
@@ -13,49 +17,80 @@ class Post extends ModelBase
 	
 	public $board;
 	
+	public $name;
+	
 	public $subject;
 	
 	public $timestamp;
 
-	public $name;
-	
 	public $text;
-	
-	public $owner;
+
+	public $userIp;
 	
 	public $bump;
 	
-	public $sage;
-	
+	public $isSage;
+
 	public $isLocked;
 	
 	public $isSticky;
 
 	public function initialize()
 	{
-		$this->hasMany("id", "File", "owner");
+		// Имеет много картинок
+		$this->hasMany("id", "Chan\Models\File", "owner", [
+			"alias" => "file",
+			"foreignKey" => [
+				"action" => Relation::ACTION_CASCADE,
+			]
+		]);
+	}
+	// Перед удалением удалим все посты в треде
+	public function beforeDelete()
+	{
+		if ($this->parent == 0)
+			Post::find("parent = $this->id and type = 'reply' and board = '$this->board'")->delete();
+
+		return true;
 	}
 	// После того как выбрали данные из базы
 	public function afterFetch()
-	{
-		$config 	=  $this->di->getDefault()->getConfig();
-		$url 		=  $this->di->getDefault()->getUrl();
-
-		$this->name = isset($this->name) ? $this->name : $config->site->defalutName;
-		$this->time = Timeformat::normal($this->timestamp);
+	{	
+		$url = $this->di->getDefault()->getUrl();
+		// Ссылка на скролл к посту
+		$this->anchor = Tag::linkTo([
+			$url->get([ 'for' => 'chan.thread.link', 'board' => $this->board, 'id' => ($this->parent == 0 ? $this->id : $this->parent) ]).'#'.$this->id,
+			'#'
+		]);
 		// Ссылка на пост
-		$this->link = Phalcon\Tag::linkTo([
-			$url->get([ 'for' => 'chan-thread-link', 'board' => $this->board, 'id' => ($this->parent == 0 ? $this->id : $this->parent) ]).'#'.$this->id,
-			'#' . $this->id,
+		$this->link = Tag::linkTo([
+			$url->get([ 'for' => 'chan.thread.link', 'board' => $this->board, 'id' => ($this->parent == 0 ? $this->id : $this->parent) ]).'#'.$this->id,
+			$this->id,
 			'data-reply' => $this->id,
 			'data-reply-thread' => ($this->parent == 0 ? $this->id : $this->parent)
 		]);
 		// Ссылка на открытие треда
-		$this->open = Phalcon\Tag::linkTo([
-			$url->get([ 'for' => 'chan-thread-link', 'board' => $this->board, 'id' => $this->id ]),
+		$this->open = Tag::linkTo([
+			$url->get([ 'for' => 'chan.thread.link', 'board' => $this->board, 'id' => $this->id ]),
 			'[Open]',
 			'data-thread-open' => $this->id
 		]);
+	}
+	// Выдаём имя
+	public function getName()
+	{
+		$config =  $this->di->getDefault()->getConfig();
+		return !empty($this->name) ? $this->name : $config->site->defalutName;
+	}
+	// Выдаём дату
+	public function getTime()
+	{
+		return Timeformat::normal($this->timestamp);
+	}
+	// Кол-во ответов
+	public function getNuberLink()
+	{
+		return $this->anchor.$this->link;
 	}
 	// Кол-во ответов
 	public function countReply()
@@ -75,7 +110,7 @@ class Post extends ModelBase
 		);
 		return $reply;
 	}	
-	// Получаем файл из того же раздела
+	// Получаем файлы из того же раздела что и пост
 	public function getFiles()
 	{
 		$files = $this->getFile("board = '{$this->board}'");
@@ -86,5 +121,4 @@ class Post extends ModelBase
 			return false;
 		
 	}
-	
 }

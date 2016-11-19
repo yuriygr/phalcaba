@@ -2,6 +2,7 @@
 ========================================================= */
 $(function() {
 	$.core.init();
+	$.attachFile.init();
 });
 
 /* Is Ctrl pressed
@@ -19,7 +20,7 @@ $(window).keydown(function(e) {
 /* Send form by Ctrl + Enter
 ========================================================= */
 $('#shampoo').keydown(function(e) {
-	if (e.keyCode == 13 && $.core.isCtrl) $('#submit').click();
+	if (e.keyCode == 13 && $.core.isCtrl) $('#submit').trigger('click');
 });
 
 /* Ajax forms
@@ -27,35 +28,85 @@ $('#shampoo').keydown(function(e) {
 $(document).on('submit', '.form[data-ajax]', function(e) {
 	e.preventDefault();
 	
-	var action = $(this).attr('action'),
-		data   = $(this).serialize();
-
-	$.post(action, data, function (data, status) {
-		if (status == "success") {
-			if (data.success) {
-				$.ambiance({ message: data.success, title: 'Успех', type: 'success' });
-			}
-			if (data.error) {
-				$.ambiance({ message: data.error, title: 'Ошибка', type: 'error' });
-			}
-			if (data.sendPost) {
-				// В принципе, делаем это при ответе
-				var boardSlug = $.core.boardSlug,
-					threadId = data.sendPost.threadId,
-					afterId  = $("div[data-type=thread-"+threadId+"] .post:last").attr('id'),
-					postId   = data.sendPost.postId;
-				// Догружаем посты в тред threadId начиная от afterId и делаем скролл до поста postId
-				$.core.sendPost({ boardSlug: boardSlug,  threadId: threadId, afterId: afterId , postId: postId  });
-			}
-			if (data.redirect) {
-				// А это, тащемта, только при создании треда
-				$(location).attr('href', data.redirect);
-			}
-		} else {
-			$.ambiance({ message: 'Сервер недоступен', title: 'Ошибка', type: 'error' });
+	var formAction = $(this).attr('action'),
+		formMethod = $(this).attr('method'),
+		formData   = new FormData(),
+		formSerialize = $(this).serializeArray();
+		
+	var updateProgress = function(e) {
+		var percentage;
+		if(e.position===undefined){
+			percentage=Math.round(e.loaded*100/e.total);
+		} else{
+			percentage=Math.round(e.position*100/e.total);
 		}
+		$('input#submit').val('Posting... (#%)'.replace('#', percentage));
+	};
+
+	// Make form data great again
+	$.each( formSerialize, function( i, field ) {
+		formData.append(field.name, field.value);
 	});
+
+	// Attach file's
+	$(document).trigger('before_post', formData);
+
+	$.ajax({
+		type: formMethod,
+		url: formAction,
+		data: formData,
+		cache: false,
+		contentType: false,
+		processData: false,
+
+		beforeSend: function () {
+			// Make button deactive
+			$('input#submit').attr('disabled', true);
+		},
+
+		xhr: function() {
+			var xhr = $.ajaxSettings.xhr();
+			if (xhr.upload) {
+				xhr.upload.addEventListener('progress', updateProgress, false);
+			}
+			return xhr;
+		},
+
+		success: function(data, status, xhr) {
+			// Если все хорошо
+			if (status == "success") {
+				if (data.success) {
+					$('.form[data-ajax]').trigger('reset');
+					$(document).trigger('after_post');
+					$.ambiance({ message: data.success, type: 'success' });
+				}
+				if (data.error) {
+					$.ambiance({ message: data.error, type: 'error' });
+				}
+				if (data.refreshThread) {
+					var boardSlug = $.core.boardSlug,
+						threadId = $('input#parent').val(),
+						afterId  = $("div[data-type=thread-"+threadId+"] .post:last").attr('id');
+					$.core.refreshThread({ boardSlug: boardSlug, threadId: threadId, afterId: afterId  });
+				}
+				if (data.redirect) {
+					$(location).attr('href', data.redirect);
+				}
+			} else {
+				$.ambiance({ message: 'Some unknown error', type: 'error' });
+			}
+			// Make button active
+			$('input#submit').attr('disabled', false);
+			// Make default text in button
+			$('input#submit').val('Send');
+		},
+
+		error: function(xhr, status, error) {
+			$.ambiance({ message: 'Some unknown error', type: 'error' });
+		}
+	},'json');
 });
+
 
 /* Scroll To Top/Bottom/Post
 ========================================================= */
@@ -77,17 +128,17 @@ $(document).on('click', 'a[data-reply]', function() {
 		postId	 = $(this).data('reply');
 
 	if ($.core.isThread == false) {
-		$('#yarn').val(threadId);
-		$('.form-name').html('Ответ в тред #' + threadId + ' <a href="#" data-reply-remove="true">Отмена</a>');
+		$('#parent').val(threadId);
+		$('.form-name').html('Reply to #' + threadId + ' <a href="#" data-reply-remove="true">Cancel</a>');
 	}
 
 	// Вставляем в поле ввода текст
-	$.core.insertText( '>>' + postId + '\r\n' );
+	$.core.insertText( '>>' + postId + "\r\n" );
 	return false;
 });
 $(document).on('click', 'a[data-reply-remove]', function() {
-	$('#yarn').val('0');
-	$('.form-name').html('Создать тред');
+	$('#parent').val('0');
+	$('.form-name').html('Create thread');
 	return false;
  });
 
@@ -100,13 +151,6 @@ $(document).on('click', 'a[data-thread-expand]', function() {
 	$.core.expandThread({ boardSlug: boardSlug, threadId: threadId  });
 	return false;
 });
-$(document).on('click', 'a[data-thread-hide]', function() {
-	var boardSlug = $.core.boardSlug,
-		threadId = $(this).data('thread-hide');
-	// Скрываем тред
-	$.core.hideThread({ boardSlug: boardSlug, threadId: threadId  });
-	return false;
-});
 $(document).on('click', 'a[data-thread-refresh]', function() {
 	var boardSlug = $.core.boardSlug,
 		threadId = $(this).data('thread-refresh'),
@@ -114,9 +158,6 @@ $(document).on('click', 'a[data-thread-refresh]', function() {
 	// Догружаем посты в тред threadId начиная от afterId
 	$.core.refreshThread({ boardSlug: boardSlug, threadId: threadId, afterId: afterId  });
 	return false;
-});
-$(document).on('click', 'a[data-thread-open]', function() {
-	return true;
 });
 
 /* Images
@@ -127,17 +168,4 @@ $(document).on('click', 'a[data-file-expand]', function() {
 	// Разворачиваем файл
 	$.core.expandFile({ fileHref: fileHref, fileType: fileType  });
 	return false;
-});/*
-$('a[data-file-expand]').magnificPopup({
-	type: 'image',
-	closeOnContentClick: true,
-	closeBtnInside: false,
-	fixedContentPos: true,
-	image: {
-		verticalFit: true
-	},
-	tLoading: 'Loading image #%curr%...',
-	gallery:{
-		enabled:true
-	}
-});*/
+});

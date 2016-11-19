@@ -88,11 +88,12 @@ $di->set('db', function() use ($config) {
 $di->set('dispatcher', function() use ($di) {
 	$eventsManager = new \Phalcon\Events\Manager;
 
-	// Отлавливаем ошибку 404
+	// Catch not found error
 	$eventsManager->attach('dispatch:beforeException', new NotFoundPlugin);
 
 	$dispatcher = new \Phalcon\Mvc\Dispatcher();
 	$dispatcher->setEventsManager($eventsManager);
+	$dispatcher->setDefaultNamespace('Chan\Controllers');
 	return $dispatcher;
 });
 
@@ -125,16 +126,16 @@ $di->set('flashSession', function() {
 /**
  * Start the session the first time some component request the session service
  */
-$di->set('session', function() {
+$di->set('session', function() use ($config) {
 	/*$session = new \Phalcon\Session\Adapter\Files();*/
 	/*$session = new \Phalcon\Session\Adapter\Redis([
-        'path'		=> 'tcp://127.0.0.1:6379?weight=1',
+		'path'		=> 'tcp://127.0.0.1:6379?weight=1',
 		'lifetime'  => 7200
-    ]);*/
+	]);*/
 	$session = new \Phalcon\Session\Adapter\Redis([
-		'host'       => $this->config->redis->host,
-		'port'       => $this->config->redis->port,
-		'lifetime'   => $this->config->redis->lifetime,
+		'host'       => $config->redis->host,
+		'port'       => $config->redis->port,
+		'lifetime'   => $config->redis->lifetime,
 	]);
 	$session->start();
 	return $session;
@@ -148,19 +149,55 @@ $di->set('parse', function() {
 	return $parse;
 });
 
+$di->set('assets', function() {
+	$assets = new \Phalcon\NAssets();
+	// JS
+	$assets
+		 ->collection('app-js')
+		 ->addJs('static/js/jquery-3.1.1.min.js')
+		 ->addJs('static/js/jquery.core.js')
+		 ->addJs('static/js/jquery.attachFile.js')
+		 ->addJs('static/js/jquery.ambiance.js')
+		 ->addJs('static/js/main.js')
+/*
+		 ->setTargetPath('static/app.js')
+		 ->setTargetUri('static/app.js')
+		 ->join(true)
+		 ->addFilter(new \Phalcon\Assets\Filters\Jsmin())*/;
+
+
+	// Fonts
+	$assets
+		 ->collection('app-fonts')
+		 ->addCss('//fonts.googleapis.com/css?family=Open+Sans:300,400,600&amp;subset=latin,cyrillic-ext', false, false);
+
+	// CSS
+	$assets
+		 ->collection('app-css')
+		 ->addCss('static/css/reset.css')
+		 ->addCss('static/css/style.css')
+/*
+		 ->setTargetPath('static/app.css')
+		 ->setTargetUri('static/app.css')
+		 ->join(true)
+		 ->addFilter(new \Phalcon\Assets\Filters\Cssmin())*/;
+
+	return $assets;
+});
+
+$di->set('security', function () {
+	$security = new \Phalcon\Security();
+	$security->setWorkFactor(12);
+	return $security;
+});
+
 /**
  * Crypt
  */
-$di->set('crypt', function () {
+$di->set('crypt', function () use ($config) {
 	$crypt = new \Phalcon\Crypt();
-	$crypt->setKey($this->config->application->cryptSalt);
+	$crypt->setKey($config->application->cryptSalt);
 	return $crypt;
-});
-
-
-$di->set('uploader', function () {
-	$uploader = new \Uploader\Uploader();
-	return $uploader;
 });
 
 /**
@@ -170,8 +207,15 @@ $di->set('tag', function() {
 	return new \Phalcon\NTag();
 });
 
+/**
+ * Create Authorization
+ */
+$di->set('auth', function() {
+	return new \Phalcon\Authorization();
+});
 
-Phalcon\Mvc\Model::setup([ 'notNullValidations' => true ]);
+$di->set('uploader', function() {
+	return new \Phalcon\ChanUploader();
+});
 
-
-?>
+\Phalcon\Mvc\Model::setup([ 'notNullValidations' => true ]);

@@ -1,13 +1,20 @@
 <?php
 
+namespace Chan\Controllers;
+
+use \Phalcon\Text;
+use \Phalcon\Mvc\View;
+
+use \Chan\Models\Page;
+
 class PageController extends ControllerBase
 {
 	public function indexAction()
 	{
-		$this->view->disableLevel(Phalcon\Mvc\View::LEVEL_LAYOUT);
+		$this->view->disableLevel(View::LEVEL_LAYOUT);
 
-		$slogan = Phalcon\Text::dynamic("
-			{Все для тебя|Твоя анонимность|Твоя рулетка|Твой чятик|Сиди тут|Смейся|Мята|Зачем тебе картинки},
+		$slogan = Text::dynamic("
+			{Все для тебя|Твоя анонимность|Твоя рулетка|Твой чятик|Сиди тут|Смейся|Мята|Зачем тебе картинки|JS для быдла},
 			{Карасик|Голова Отца|>Анон|Собака|Покемон|ЕФГ|Виталик|Зой}
 		");
 		$this->view->setVars([

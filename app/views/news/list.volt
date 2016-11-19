@@ -1,6 +1,7 @@
-{% for news in newss %}
-	<h4>{{ news.getTitle() }}</h4>
+{% for news in news.items %}
+	<h3>{{ news.getTitle() }}</h3>
+	<span>{{ news.getDate() }}</span>
 	{{ news.getContent() }}
-	{{ news.getDate() }}
+	
 	<hr>
 {% endfor %}

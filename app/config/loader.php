@@ -12,6 +12,10 @@ $loader->registerDirs([
 	$config->application->pluginsDir,
 ]);
 $loader->registerNamespaces([
-	'Phalcon' => $config->application->libraryDir
+	'Phalcon' => $config->application->libraryDir,
+	'Chan\Models' => $config->application->modelsDir,
+	'Chan\Controllers' => $config->application->controllersDir,
+	'Chan\Controllers\Api' => $config->application->controllersDir.'api/'
 ]);
+
 $loader->register();

@@ -1,14 +1,14 @@
 <div class="post {{ post.type }}" id="{{ post.id }}">
 	<div class="post-info">
-		{% if (post.sage) %}
-			<span class="nyan nyan-sage" title="Sage"></span>
-		{% endif %}
-		{% if (post.subject) %}
-			<span class="subject">{{ post.subject }}</span>
-		{% endif %}
-		<span class="name">{{ post.name }}</span>
-		<span class="time">{{ post.time }}</span>
-		<span class="link">{{ post.link }}</span>
+	{% if (post.isSage) %}
+		<span class="nyan nyan-sage" title="Sage"></span>
+	{% endif %}
+	{% if (post.subject) %}
+		<span class="subject">{{ post.subject }}</span>
+	{% endif %}
+		<span class="name">{{ post.getName() }}</span>
+		<span class="time">{{ post.getTime() }}</span>
+		<span class="link">{{ post.getNuberLink() }}</span>
 	</div>
 
 	{% if (post.getFiles()) %}
@@ -23,7 +23,8 @@
 	{% endif %}
 
 	<div class="post-text">
-	   {{ post.text }}
+		{{ post.text }}
 	</div>
+
 </div>
 <div class="clear"></div>

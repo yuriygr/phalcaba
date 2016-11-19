@@ -2,15 +2,17 @@
 
 $config =  new \Phalcon\Config([
 	'site' => [
-		'favicon'			=> '/assets/favicon.ico',
-		'title'				=> 'phalcaba',
-		'description'		=> 'Open. Free. Clear.',
-		'keywords'			=> 'Движок, чан, изображения, анонимность, АИБ, форум, открытый',
+		'favicon'			=> '/static/img/favicon.ico',
+		'title'				=> 'Phalcaba',
+		'description'		=> 'Open. Free. Simple.',
+		'keywords'			=> 'imageboard, chan, board, 4chan, 2channel, 2ch, 0chan, борды, хуёрды',
 
 		// Кол-во ответов к треду на главной странице
 		'replyLimit'		=> '4',
 		// Кол-во тредов на странице
 		'threadLimit'		=> '15',
+		// Кол-во страниц в чане
+		'pageLimit'			=> '8',
 		// Кол-во постов в треде
 		'postLimit'			=> '501',
 		// Кол-во новостей на страницу
@@ -18,24 +20,24 @@ $config =  new \Phalcon\Config([
 		// Кол-во символов в заголовке
 		'subjectLimit'		=> '65',
 		// Имя по умолчанию
-		'defalutName'		=> 'Аноним',
+		'defalutName'		=> 'Anonymous',
 		// Разрешённые к загрузке файлы
-		'allowedFiles' 		=> 'jpg, jpeg, png, gif',
+		'allowedFiles' 		=> ['image/jpg', 'image/jpeg', 'image/png', 'image/gif'],
 		// Сколько файлов можно аттачить к посту
-		'countFiles' 		=> '2'
+		'maxFiles' 			=> '1',
 	],
 	'database' => [
 		'adapter'			=> 'Mysql',
-		'host'				=> 'localhost',
+		'host'				=> '127.0.0.1',
 		'username'			=> '',
 		'password'			=> '',
 		'name'				=> '',
-		'charset'			=> 'utf8',
+		'charset'			=> 'utf8'
 	],
 	'redis' => [
 		'host'				=> '127.0.0.1',
 		'port'				=> 6379,
-		'lifetime'			=> 129600,
+		'lifetime'			=> 129600
 	],
 	'application' => [
 		'controllersDir'	=> APP_DIR  . '/controllers/',
@@ -43,9 +45,10 @@ $config =  new \Phalcon\Config([
 		'viewsDir'			=> APP_DIR  . '/views/',
 		'libraryDir'		=> APP_DIR  . '/library/',
 		'pluginsDir'		=> APP_DIR  . '/plugins/',
+		'filesDir'			=> BASE_DIR . '/public/file/',
 		'cacheDir'			=> BASE_DIR . '/cache/',
 		'baseUri'			=> '/',
 		'cryptSalt'			=> 'SALT',
-		'version'			=> '1.0.3',
+		'version'			=> '2.1.0'
 	],
 ]);

@@ -1,12 +1,16 @@
 <div class="board-content">
 
 	<?php foreach ($threads->items as $thread) { ?>
-		<div class="thread-box" data-type="thread-<?= $thread->id?>">
+		<div class="thread-box" data-type="thread-<?= $thread->id; ?>">
 			<?php 
 				$this->partial("common/chan_thread", [ 'thread' => $thread, 'open' => false ]);
-				foreach ($thread->getReply($this->config->site->replyLimit) as $post)
-					$this->partial("common/chan_post", [ 'post' => $post ]);
 			?>
+			<div class="thread-replys">
+				<?php
+					foreach ($thread->getReply($this->config->site->replyLimit) as $post)
+						$this->partial("common/chan_post", [ 'post' => $post ]);
+				?>
+			</div>
 		</div>
 		<hr>
 	<?php } ?>
@@ -24,16 +28,16 @@
 	<span class="pagination">
 	<?php if ($threads->current != $threads->first)
 		echo $this->tag->linkTo([
-			$this->url->get([ 'for' => 'chan-page-link', 'board' => $board->slug, 'page' => $threads->before ]),
-			'Предыдущая',
+			$this->url->get([ 'for' => 'chan.board.page', 'board' => $board->slug, 'page' => $threads->before ]),
+			'Previous',
 			'class' => 'btn',
 			'rel' => 'prev' 
 		]); ?>
 
 	<?php if ($threads->current != $threads->last)
 		echo $this->tag->linkTo([
-			$this->url->get([ 'for' => 'chan-page-link', 'board' => $board->slug, 'page' => $threads->next ]),
-			'Следующая',
+			$this->url->get([ 'for' => 'chan.board.page', 'board' => $board->slug, 'page' => $threads->next ]),
+			'Next',
 			'class' => 'btn',
 			'rel' => 'next'
 		]); ?>
@@ -41,15 +45,8 @@
 <?php } ?>
 	<span>
 		<?= $this->tag->linkTo([
-			$this->url->get([ 'for' => 'chan-catalog-link', 'board' => $board->slug ]),
-			'Каталог',
-			'class' => 'btn'
-		]); ?>
-	</span>
-	<span>
-		<?= $this->tag->linkTo([
-			$this->url->get([ 'for' => 'chan-files-link', 'board' => $board->slug ]),
-			'Файлы',
+			$this->url->get([ 'for' => 'chan.board.catalog', 'board' => $board->slug ]),
+			'Catalog',
 			'class' => 'btn'
 		]); ?>
 	</span>

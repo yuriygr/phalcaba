@@ -1,5 +1,7 @@
 <?php
 
+namespace Chan\Models;
+
 class File extends ModelBase
 {
 
@@ -19,7 +21,8 @@ class File extends ModelBase
     
     public function initialize()
     {
-        $this->belongsTo("owner", "Post", "id");
+        $this->belongsTo("owner", "Chan\Models\Post", "id");
+        $this->belongsTo("board", "Chan\Models\Chan", "slug");
     }
     // Удаляя модель удалим и файлы
     public function beforeDelete()
@@ -30,11 +33,11 @@ class File extends ModelBase
     // Получаем ссылку на файл
     public function getLink( $type = 'origin')
     {
-        if ( $type == 'origin' )
+        if ($type == 'origin')
             return '/file/' . $this->slug . '.' . $this->type;
             
-        if ( $type == 'thumb' )
-            return '/file/' . $this->slug . '_t.' . ($this->type != 'webm' ? $this->type : 'jpg') ;
+        if ($type == 'thumb')
+            return '/file/' . $this->slug . '_t.' . ($this->type != 'webm' ? $this->type : 'jpg');
     }
     // Получаем разрешение файла
     public function getResolution()

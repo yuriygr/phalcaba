@@ -1,19 +1,20 @@
 <?php
 
-try {
-	/**
-	 * Error catch
-	 */
-	ini_set('display_errors',1);
-	error_reporting(E_ALL);
-	date_default_timezone_set('Europe/Moscow');
+/**
+ * Error catch
+ */
+ini_set('display_errors',1);
+error_reporting(E_ALL);
+date_default_timezone_set('Europe/Moscow');
 
-    /**
-     * Define App directory
-     */
-	define('BASE_DIR', realpath('../'));
-	define('APP_DIR', realpath('../app'));
-	define('PUB_DIR', realpath('../public'));
+/**
+ * Define App directory
+ */
+define('BASE_DIR', realpath('../'));
+define('APP_DIR', realpath('../app'));
+define('PUB_DIR', realpath('../public'));
+
+try {
 
 	/**
 	 * Read the configuration
@@ -36,11 +37,17 @@ try {
 	include(APP_DIR . '/config/services.php');
 
 	/**
-	 * Handle the request
+	 * Create application
 	 */
 	$application = new \Phalcon\Mvc\Application($di);
+
+	/**
+	 * Handle the request
+	 */
 	echo $application->handle()->getContent();
 
 } catch (Phalcon\Exception $e) {
+	echo $e->getMessage();
+} catch (PDOException $e) {
 	echo $e->getMessage();
 }

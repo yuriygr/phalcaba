@@ -1,7 +1,10 @@
 <?php
 namespace Phalcon\Utils;
 
-use Phalcon\Mvc\User\Component;
+use \Phalcon\Mvc\User\Component;
+use \Phalcon\Tag;
+use \Chan\Models\Chan;
+use \Chan\Models\Post;
 
 class Parse extends Component {
 
@@ -13,15 +16,15 @@ class Parse extends Component {
 	 */
 	function MakeHashTag($buffer)
 	{
-		$buffer = preg_replace_callback('/(\#)([0-9a-zA-ZА-Я-а-я\_]+)/', array(&$this, 'MakeHashTagCallback'), $buffer);
+		$buffer = preg_replace_callback('/(\#)([0-9a-zA-Z\_]+)/', array(&$this, 'MakeHashTagCallback'), $buffer);
 
 		return $buffer;
 	}
 	function MakeHashTagCallback($matches) {
 		global $board_slug;
 
-		$link = \Phalcon\Tag::linkTo([
-			$this->url->get([ 'for' => 'chan-search-hashtag', 'board' => $this->board_slug, 'hashtag' => $matches[2] ]),
+		$link = Tag::linkTo([
+			$this->url->get([ 'for' => 'chan.search.hashtag', 'board' => $this->board_slug, 'hashtag' => $matches[2] ]),
 			'#' . $matches[2]
 		]);
 
@@ -69,15 +72,15 @@ class Parse extends Component {
 			$matches[0] = substr($matches[0], 0, -1);
 		}
 		
-		$post = \Post::findFirst(
+		$post = Post::findFirst(
 			[ 'id = :id: and board = :board:',
 				'bind' => [ 'id' => $matches[1], 'board' => $this->board_slug]
 			]
 		);
 
 		if ( $post )
-			$link = \Phalcon\Tag::linkTo([
-				$this->url->get([ 'for' => 'chan-thread-link', 'board' => $post->board, 'id' => ($post->parent == 0 ? $post->id : $post->parent) ]).'#'.$post->id,
+			$link = Tag::linkTo([
+				$this->url->get([ 'for' => 'chan.thread.link', 'board' => $post->board, 'id' => ($post->parent == 0 ? $post->id : $post->parent) ]).'#'.$post->id,
 				'&gt;&gt;' . $post->id,
 				'class' => ($post->parent == 0 ? 'op_post' : '')
 			]);
@@ -96,15 +99,15 @@ class Parse extends Component {
 			$matches[0] = substr($matches[0], 0, -1);
 		}
 		
-		$post = \Post::findFirst(
+		$post = Post::findFirst(
 			[ 'id = :id: and board = :board:',
 				'bind' => [ 'id' => $matches[2], 'board' => $matches[1]]
 			]
 		);
 
 		if ( $post )
-			$link = \Phalcon\Tag::linkTo([
-				$this->url->get([ 'for' => 'chan-thread-link', 'board' => $post->board, 'id' => ($post->parent == 0 ? $post->id : $post->parent) ]).'#'.$post->id,
+			$link = Tag::linkTo([
+				$this->url->get([ 'for' => 'chan.thread.link', 'board' => $post->board, 'id' => ($post->parent == 0 ? $post->id : $post->parent) ]).'#'.$post->id,
 				'&gt;&gt;' . '/' . $post->board . '/' . $post->id,
 				'class' => ($post->parent == 0 ? 'op_post' : '')
 			]);
@@ -123,15 +126,15 @@ class Parse extends Component {
 			$matches[0] = substr($matches[0], 0, -1);
 		}
 		
-		$board = \Chan::findFirst(
+		$board = Chan::findFirst(
 			[ 'slug = :slug:',
 				'bind' => [ 'slug' => $matches[1]]
 			]
 		);
 
 		if ( $board )
-			$link = \Phalcon\Tag::linkTo([
-				$this->url->get([ 'for' => 'chan-board-link', 'board' => $board->slug]),
+			$link = Tag::linkTo([
+				$this->url->get([ 'for' => 'chan.board', 'board' => $board->slug]),
 				'&gt;&gt;' . '/' . $board->slug . '/'
 			]);
 		else
@@ -204,7 +207,7 @@ class Parse extends Component {
 
 		// Чистим вилкой
 		$message = trim($message);
-		$message = htmlspecialchars($message, ENT_QUOTES);
+		$message = htmlspecialchars($message);
 		// Делаем хештеги
 		$message = $this->MakeHashTag($message);
 		// Ссылка на пост

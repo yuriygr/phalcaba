@@ -1,6 +1,8 @@
 <?php
 
-use \Phalcon\Utils\Timeformat as Timeformat;
+namespace Chan\Models;
+
+use \Phalcon\Utils\Timeformat;
 
 class News extends ModelBase
 {

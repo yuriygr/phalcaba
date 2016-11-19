@@ -3,9 +3,13 @@
 	<div class="thread-box" data-type="thread-<?= $thread->id?>">
 		<?php
 			$this->partial("common/chan_thread", [ 'thread' => $thread, 'open' => true ]);
-			foreach ($thread->getReply() as $post)
-				$this->partial("common/chan_post", [ 'post' => $post]);
 		?>
+		<div class="thread-replys">
+			<?php
+				foreach ($thread->getReply() as $post)
+					$this->partial("common/chan_post", [ 'post' => $post]);
+			?>
+		</div>
 	</div>
 	<hr>
 
@@ -14,20 +18,13 @@
 <div class="board-nav">
 	<span>
 		<?= $this->tag->linkTo([
-			$this->url->get([ 'for' => 'chan-board-link', 'board' => $thread->board ]),
-			'Назад',
+			['for' => 'chan.board', 'board' => $thread->board],
+			'Return',
 			'class' => 'btn'
 		]); ?>
 		<?= $this->tag->linkTo([
 			'#',
-			'Вверх',
-			'local' => false,
-			'data-scroll' => 'up',
-			'class' => 'btn'
-			]); ?>
-		<?= $this->tag->linkTo([
-			'#',
-			'Обновить',
+			'Refresh thread',
 			'local' => false,
 			'data-thread-refresh' => $thread->id,
 			'class' => 'btn'
