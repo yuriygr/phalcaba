@@ -14,9 +14,9 @@ class NTag extends \Phalcon\Tag
 		return '<meta charset="utf-8">'."\r\n";
 	}
 	
-	/*
-		Favicon
-	*/
+	/**
+	 * Favicon
+	 */
 	public function setFavicon($param)
 	{
 		self::$favicon = $param;
@@ -26,9 +26,9 @@ class NTag extends \Phalcon\Tag
 		if (self::$favicon != null)
 			return '<link rel="shortcut icon" href="' . self::$favicon . '" type="image/x-icon">'."\r\n";
 	}
-	/*
-		Description
-	*/
+	/**
+	 * Description
+	 */
 	public function setDescription($param)
 	{
 		self::$description =  self::_cleanText($param);
@@ -38,9 +38,9 @@ class NTag extends \Phalcon\Tag
 		if (self::$description != null)
 			return '<meta name="description" content="' . self::$description . '">'."\r\n";
 	}
-	/*
-		KeyWords
-	*/
+	/**
+	 * Keywords
+	 */
 	public function setKeywords($param)
 	{
 		self::$keywords =  self::_cleanText($param);
@@ -50,9 +50,9 @@ class NTag extends \Phalcon\Tag
 		if (self::$keywords != null)
 			return '<meta name="keywords" content="' . self::$keywords . '">'."\r\n";
 	}
-	/*
-		Generator
-	*/
+	/**
+	 * Generator
+	 */
 	public function setGenerator($param)
 	{
 		self::$generator =  self::_cleanText($param);
@@ -63,9 +63,11 @@ class NTag extends \Phalcon\Tag
 			return '<meta name="generator" content="' . self::$generator . '">'."\r\n";
 	}
 
+	/**
+	 * Чистим текст
+	 */
 	public function _cleanText($string)
 	{
-		// Чистим текст
 		$filter =  \Phalcon\DI\FactoryDefault::getDefault()->getShared('filter');
 		$string = $filter->sanitize($string, 'striptags');
 		$string = preg_replace('/\s+$/m', ' ', $string);
@@ -74,10 +76,12 @@ class NTag extends \Phalcon\Tag
 
 		return $string;
 	}
-
+	/**
+	 * Пропушенно постов
+	 */
 	public function getOmitted($count) {
 		$cases 	= [2, 0, 1, 1, 1, 2];
-		$titles = ['сообщение', 'сообщения', 'сообщений'];
-		return $count.' '.$titles[ ($count%100 > 4 && $count %100 < 20) ? 2 : $cases[min($count%10, 5)] ].' пропущено.';
+		$titles = ['reply', 'replies', 'replies'];
+		return $count.' '.$titles[ ($count%100 > 4 && $count %100 < 20) ? 2 : $cases[min($count%10, 5)] ].' omitted.';
 	}
 }

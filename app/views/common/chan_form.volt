@@ -10,12 +10,12 @@
 	{{ hidden_field('parent', 'value': thread_id) }}
 
 	<div class="form-group">
-		<input class="input" type="text" id="kasumi" name="kasumi" placeholder="Subject" tabindex="1" />
-		{{ submit_button('Send','class': 'btn', 'id': 'submit', 'name': 'submit', 'tabindex': 3) }}
+		{{ text_field('kasumi', 'class': 'input','placeholder': 'Subject', 'tabindex': 1) }}
+		{{ submit_button('Send', 'class': 'btn', 'id': 'submit', 'name': 'submit', 'tabindex': 3) }}
 	</div>
 
 	<div class="form-group">
-		{{ text_area('shampoo', 'id': 'shampoo', 'rows': 6, 'placeholder': 'Message', 'tabindex': 2) }}
+		{{ text_area('shampoo', 'rows': 6, 'placeholder': 'Message', 'tabindex': 2) }}
 	</div>
 
 	<div class="form-group">
@@ -28,8 +28,8 @@
 
 	<div class="form-group">
 		<span class="checkbox">
-			<label><input type="checkbox" name="sage" id="sage" tabindex="4"> Sage</label>
-		</span>
+			<label><input type="checkbox" name="sage" id="sage" tabindex="4" value="1"> Sage</label>
+		</span>		
 		<span class="form-name right">{{ thread_id ? 'Reply' : 'Create thread' }}</span>
 	</div>
 

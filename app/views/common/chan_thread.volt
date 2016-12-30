@@ -1,4 +1,4 @@
-<div class="post {{ thread.type}}" id="{{ thread.id}}">
+<div class="post {{ thread.type}}" id="{{ thread.id }}">
 	<div class="post-info">
 	{% if (thread.isLocked) %}
 		<span class="nyan nyan-locked" title="Locked"></span>
@@ -14,13 +14,14 @@
 		<span class="link">{{ thread.getNuberLink() }}</span>
 	{% if (open == false) %}
 		<span class="open">{{ thread.open }}</span>
+		<span class="hide"><a href="#" data-thread-hide="{{ thread.id }}">Hide</a></span>
 	{% endif %}
+		<span class="follow"><a href="#" data-thread-follow="{{ thread.id }}">Follow</a></span>
 	</div>
-	
 	{% if (thread.getFiles()) %}
 		<div class="post-file left">
 		{% for file in thread.getFiles() %}
-			<a href="{{ file.getLink('origin') }}" target="_blank" data-file-expand="{{ file.type }}">
+			<a href="{{ file.getLink('origin') }}" target="_blank" data-file-expand="true" data-file-type="{{ file.type }}">
 				<img src="{{ file.getLink('thumb') }}" alt="file-{{ file.type }}-{{ file.id }}">
 				<span class="file-info">({{ file.getResolution() }}) {{ file.type }}</span>
 			</a>
@@ -31,12 +32,14 @@
 	<div class="post-text">
 		{{ thread.text }}
 	</div>
+	
+	<div class="post-replieslist" style="display: none;"></div>
 
 </div>
 {% if (thread.countReply() > config.site.replyLimit and open == false) %}
-	<div class="omitted">
+<div class="omitted">
 	{{ tag.getOmitted(thread.countReply() - config.site.replyLimit) }}
 	{{ link_to(['for': 'chan.thread.link', 'board': thread.board, 'id': thread.id ], 'Expand', 'data-thread-expand': thread.id) }}
-	</div>
+</div>
 {% endif %}
 <div class="clear"></div>

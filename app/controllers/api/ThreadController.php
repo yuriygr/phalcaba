@@ -2,7 +2,7 @@
 
 namespace Chan\Controllers\Api;
 
-use \Chan\Models\Chan;
+use \Chan\Models\Board;
 use \Chan\Models\Post;
 
 class ThreadController extends ControllerBase
@@ -14,7 +14,7 @@ class ThreadController extends ControllerBase
 		$threadId = $this->request->get('threadId', 'int');
 
 		// Поиск раздела
-		$chan = Chan::findFirst(
+		$chan = Board::findFirst(
 			[ 'slug = :slug:', 'bind' => [
 				'slug' => $boardSlug
 			]]
@@ -63,7 +63,7 @@ class ThreadController extends ControllerBase
 		$afterId = $this->request->get('afterId', 'int');
 
 		// Поиск раздела
-		$chan = Chan::findFirst(
+		$chan = Board::findFirst(
 			[ 'slug = :slug:', 'bind' => [
 				'slug' => $boardSlug
 			]]
@@ -83,8 +83,20 @@ class ThreadController extends ControllerBase
 		);
 
 		$posts = [];
+		$files[] = [];
 
 		foreach ($replys as $reply) {
+
+			/*foreach ($reply->getFiles() as $file) {
+				$files[] = [
+					'id' => $reply->id,
+					'parent' => $reply->parent,
+					'board' => $reply->board,
+					'subject' => $reply->subject,
+					'time' => $reply->getTime()
+				];
+			}*/
+
 			$posts[] = [
 				'id' => $reply->id,
 				'parent' => $reply->parent,
@@ -94,7 +106,8 @@ class ThreadController extends ControllerBase
 				'name' => $reply->getName(),
 				'text' => $reply->text,
 				'isSage' => $reply->isSage ? true : false,
-				'link' => $reply->getNuberLink()
+				'link' => $reply->getNuberLink(),
+				'files' => $files
 			];
 		}
 

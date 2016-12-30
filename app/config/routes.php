@@ -45,9 +45,6 @@ $router->add( '/{board:[a-z]+}/search', 'Chan::search' )
 $router->add( '/{board:[a-z]+}/search?hashtag={hashtag}', 'Chan::search' )
 	   ->setName('chan.search.hashtag');
 
-
-$router->add( '/settings', 'Chan::settings' )
-	   ->setName('chan.settings');
 /*
 	Panel
 	==================================================================================
@@ -67,6 +64,12 @@ $router->add( '/panel/reports', [
 	API
 	==================================================================================
 */
+// Post
+$router->add( '/api/getPost', [
+	'namespace'  => 'Chan\Controllers\Api',
+	'controller' => 'Post',
+	'action'     => 'get',
+]);
 // Thread
 $router->add( '/api/expandThread', [
 	'namespace'  => 'Chan\Controllers\Api',
@@ -78,15 +81,15 @@ $router->add( '/api/refreshThread', [
 	'controller' => 'Thread',
 	'action'     => 'refresh',
 ]);
+$router->add( '/api/followThread', [
+	'namespace'  => 'Chan\Controllers\Api',
+	'controller' => 'Thread',
+	'action'     => 'follow',
+]);
 $router->add( '/api/hideThread', [
 	'namespace'  => 'Chan\Controllers\Api',
 	'controller' => 'Thread',
 	'action'     => 'hide',
-]);
-$router->add( '/api/unhideThread', [
-	'namespace'  => 'Chan\Controllers\Api',
-	'controller' => 'Thread',
-	'action'     => 'unhide',
 ]);
 
 

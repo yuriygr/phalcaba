@@ -12,15 +12,8 @@
 			{% endif %}
 		</div>
 		<hr>
-		<div class="board-add">
-			{{ partial('common/chan_form', ['thread_id': thread_id]) }}
-		</div>
-		<hr>
-		{{ content() }}
 
-		<div class="board-panel">
-			{{ link_to('#top', 'Scroll up','local': false, 'data-scroll': 'up', 'class': 'btn') }}
-			{{ link_to('#top', 'Scroll down','local': false, 'data-scroll': 'down', 'class': 'btn') }}
-		</div>
+		{{ content() }}
+	
 	</div>
 </section>

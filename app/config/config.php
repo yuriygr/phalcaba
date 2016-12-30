@@ -7,7 +7,7 @@ $config =  new \Phalcon\Config([
 		'description'		=> 'Open. Free. Simple.',
 		'keywords'			=> 'imageboard, chan, board, 4chan, 2channel, 2ch, 0chan, борды, хуёрды',
 
-		// Кол-во ответов к треду на главной странице
+		// Кол-во ответов к треду на странице
 		'replyLimit'		=> '4',
 		// Кол-во тредов на странице
 		'threadLimit'		=> '15',
@@ -18,16 +18,17 @@ $config =  new \Phalcon\Config([
 		// Кол-во новостей на страницу
 		'newsLimit'			=> '10',
 		// Кол-во символов в заголовке
-		'subjectLimit'		=> '65',
+		'subjectLimit'		=> '70',
 		// Имя по умолчанию
 		'defalutName'		=> 'Anonymous',
 		// Разрешённые к загрузке файлы
 		'allowedFiles' 		=> ['image/jpg', 'image/jpeg', 'image/png', 'image/gif'],
 		// Сколько файлов можно аттачить к посту
-		'maxFiles' 			=> '1',
+		'maxFiles' 			=> '2',
+		// Через какой промежуток можно сделать новый пост
+		'timeLimit' 		=> '5',
 	],
 	'database' => [
-		'adapter'			=> 'Mysql',
 		'host'				=> '127.0.0.1',
 		'username'			=> '',
 		'password'			=> '',
@@ -35,11 +36,12 @@ $config =  new \Phalcon\Config([
 		'charset'			=> 'utf8'
 	],
 	'redis' => [
-		'host'				=> '127.0.0.1',
+		'host'				=> 'localhost',
 		'port'				=> 6379,
 		'lifetime'			=> 129600
 	],
 	'application' => [
+		'configDir'			=> APP_DIR  . '/config/',
 		'controllersDir'	=> APP_DIR  . '/controllers/',
 		'modelsDir'			=> APP_DIR  . '/models/',
 		'viewsDir'			=> APP_DIR  . '/views/',
@@ -49,6 +51,6 @@ $config =  new \Phalcon\Config([
 		'cacheDir'			=> BASE_DIR . '/cache/',
 		'baseUri'			=> '/',
 		'cryptSalt'			=> 'SALT',
-		'version'			=> '2.1.0'
+		'version'			=> '2.2.3'
 	],
 ]);

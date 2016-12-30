@@ -8,7 +8,6 @@ use \Phalcon\Tag;
 
 class Post extends ModelBase
 {
-
 	public $id;
 	
 	public $type;
@@ -37,6 +36,9 @@ class Post extends ModelBase
 
 	public function initialize()
 	{
+		// Хм
+		$this->useDynamicUpdate(true);
+
 		// Имеет много картинок
 		$this->hasMany("id", "Chan\Models\File", "owner", [
 			"alias" => "file",
@@ -72,7 +74,7 @@ class Post extends ModelBase
 		// Ссылка на открытие треда
 		$this->open = Tag::linkTo([
 			$url->get([ 'for' => 'chan.thread.link', 'board' => $this->board, 'id' => $this->id ]),
-			'[Open]',
+			'Open',
 			'data-thread-open' => $this->id
 		]);
 	}

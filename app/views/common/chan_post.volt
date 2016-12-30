@@ -14,7 +14,7 @@
 	{% if (post.getFiles()) %}
 		<div class="post-file left">
 		{% for file in post.getFiles() %}
-			<a href="{{ file.getLink('origin') }}" target="_blank" data-file-expand="{{ file.type }}">
+			<a href="{{ file.getLink('origin') }}" target="_blank" data-file-expand="true" data-file-type="{{ file.type }}">
 				<img src="{{ file.getLink('thumb') }}" alt="file-{{ file.type }}-{{ file.id }}">
 				<span class="file-info">({{ file.getResolution() }}) {{ file.type }}</span>
 			</a>
@@ -25,6 +25,8 @@
 	<div class="post-text">
 		{{ post.text }}
 	</div>
+
+	<div class="post-replieslist" style="display: none;"></div>
 
 </div>
 <div class="clear"></div>

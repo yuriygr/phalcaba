@@ -5,7 +5,7 @@ namespace Chan\Controllers;
 use \Phalcon\Tag;
 use \Phalcon\Mvc\View;
 
-use \Chan\Models\Chan;
+use \Chan\Models\Board;
 use \Chan\Models\Page;
 
 class ControllerBase extends \Phalcon\Mvc\Controller
@@ -23,7 +23,7 @@ class ControllerBase extends \Phalcon\Mvc\Controller
 		$this->tag->setKeywords($this->config->site->keywords);
 
 		// Список всех досок, страниц и название чана
-		$boardsList 	= Chan::find('isHide != 1');
+		$boardsList 	= Board::find('isHide != 1');
 		$pagesList  	= Page::find('isHide != 1');
 
 		$this->view->setVars([

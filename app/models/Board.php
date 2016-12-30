@@ -4,7 +4,7 @@ namespace Chan\Models;
 
 use \Phalcon\Mvc\Model\Relation;
 
-class Chan extends ModelBase
+class Board extends ModelBase
 {
 
 	public $id;
@@ -23,9 +23,11 @@ class Chan extends ModelBase
 	
 	public $isLeed;
 
+	public $hasCaptcha;
+
 	public function initialize()
 	{
-		$this->hasMany("slug", "Chan\Models\File", "board", [
+		$this->hasMany("slug", "Board\Models\File", "board", [
 			"alias" => "file",
 			"foreignKey" => [
 				"action" => Relation::ACTION_CASCADE,

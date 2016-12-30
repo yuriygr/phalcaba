@@ -5,8 +5,9 @@ namespace Chan\Controllers;
 use \Phalcon\Utils\Slug;
 use \Phalcon\Mvc\View;
 
-use \Chan\Models\Chan;
+use \Chan\Models\Board;
 use \Chan\Models\Post;
+use \Chan\Models\File;
 use \Chan\Models\Stoplist;
 
 class ChanController extends ControllerBase
@@ -20,7 +21,7 @@ class ChanController extends ControllerBase
 		$this->thread_param	= $this->dispatcher->getParam('id', 'int', '0');
 		$this->userIp 		= $this->request->getClientAddress();
 		
-		$this->board = Chan::findFirst(
+		$this->board = Board::findFirst(
 			[ 'slug = :slug:', 'bind' => [
 				'slug' => $this->board_param
 			]]
@@ -35,159 +36,201 @@ class ChanController extends ControllerBase
 	
 	public function addAction()
 	{
-		$this->view->disable();
-		
+
 		if ( $this->request->isPost() && $this->request->isAjax() ) {
 
-			$e = new \Phalcon\Escaper();
-			
-			$board_slug = $this->board->slug;
-			
-			$parent 	= $this->request->getPost('parent', 'int');
-			
-			$kasumi 	= $this->request->getPost('kasumi');
-			$kasumi 	= $this->filter->sanitize($kasumi, 'striptags');
-			$kasumi 	= $e->escapeHtml($kasumi);
-			
-			$name 		= null;
+			$this->view->disable();
 
-			$shampoo 	= $this->request->getPost('shampoo');
-			//$shampoo	= $this->filter->sanitize($shampoo, 'striptags');
-			$shampoo	= $this->parse->make($shampoo, $board_slug, $parent);
-			
-			// I'm so sorry
-			$userIp 	= $this->userIp;
+			try {
 
-			$isSage 	= $this->request->getPost('sage') ? 1 : 0;
-			
-			$isThread = ($parent == 0);
-			$isPost   = ($parent != 0);
+				$manager = new \Phalcon\Mvc\Model\Transaction\Manager();
+				$escaper = new \Phalcon\Escaper();
 
-			$board = Chan::findFirst(
-				[ 'slug = :slug:', 'bind' => [
-					'slug' => $board_slug
-				]]
-			);
+				$transaction = $manager->get();
 
-			// Проверка наличия раздела
-			if (!$board)
-				return $this->_returnJson([ 'error' => 'Такого раздела не существует' ]);
+				$board_slug = $this->board->slug;
+				
+				$parent = $this->request->getPost('parent', 'int', 0);
+				
+				$kasumi = $this->request->getPost('kasumi');
+				$kasumi = $this->filter->sanitize($kasumi, 'striptags');
+				$kasumi = $escaper->escapeHtml($kasumi);
+				
+				$name = null;
 
-			// Проверка на закрыт ли он
-			if ($board->isLocked)
-				return $this->_returnJson([ 'error' => 'Раздел закрыт, в него постить нельзя' ]);		
-			
-			if ($isPost) {
-				$thread = Post::findFirst(
-					[ 'id = :id: and type = "thread" and board = :board:', 'bind' => [
-						'id' => $parent,
-						'board' => $board_slug
+				$shampoo = $this->request->getPost('shampoo');
+				$shampoo = $this->parse->make($shampoo, $board_slug, $parent);
+				
+				// I'm so sorry
+				$userIp = $this->userIp;
+
+				$isSage = $this->request->getPost('sage', 'int', 0);
+				
+				$isThread = ($parent == 0);
+				$isPost = ($parent != 0);
+
+				$hasFile = $this->request->hasFiles();
+
+				$board = Board::findFirst(
+					[ 'slug = :slug:', 'bind' => [
+						'slug' => $board_slug
 					]]
 				);
-				// Проверка наличия треда
-				if (!$thread)
-					return $this->_returnJson([ 'error' => 'Такого треда не существует' ]);
+
+				// Проверка наличия раздела
+				if (!$board) {
+					throw new \Phalcon\Exception('Такого раздела не существует');
+				}
+
 				// Проверка на закрыт ли он
-				if ($thread->isLocked)
-					return $this->_returnJson([ 'error' => 'Тред закрыт, в него постить нельзя' ]);
-			}
-			
-			// Проверка длины заголовка
-			if (iconv_strlen($kasumi) >  $this->config->site->subjectLimit)
-				return $this->_returnJson([ 'error' => 'Заголовок слишком длинный' ]);
+				if ($board->isLocked) {
+					throw new \Phalcon\Exception('Раздел закрыт, в него постить нельзя');
+				}
 				
-			// Проверка на наличие текста
-			if (!$shampoo)
-				return $this->_returnJson([ 'error' => 'Введите сообщение' ]);
+				// Если пост в тред, то проверяем, есть ли тред
+				if ($isPost) {
+					$thread = Post::findFirst(
+						[ 'id = :id: and type = "thread" and board = :board:', 'bind' => [
+							'id' => $parent,
+							'board' => $board_slug
+						]]
+					);
+					// Проверка наличия треда
+					if (!$thread)
+						throw new \Phalcon\Exception('Такого треда не существует');
 
-			if ($this->_checkSpam($shampoo))
-				return $this->_returnJson([ 'error' => 'Ой ой, шалунишка' ]);
+					// Проверка на закрыт ли он
+					if ($thread->isLocked)
+						throw new \Phalcon\Exception('Тред закрыт, в него постить нельзя');
+				}
 
-			$post = new Post();
-			$post->type 		= 	$isThread 	? 'thread' : 'reply';
-			$post->parent 		= 	$parent;
-			$post->board 		= 	$board_slug;
-			$post->name			=	$name 		?? null;
-			$post->subject		=	$kasumi 	?? null;
-			$post->timestamp 	=	time();
-			$post->text			=	$shampoo 	?? null;
-			$post->userIp 		= 	$userIp;
-			$post->bump 		= 	$isThread 	? time() : 0;
-			$post->isSage 		= 	$isThread 	? 0 : $isSage;
+				// Проверка на наличие текста
+				if (!$shampoo) {
+					throw new \Phalcon\Exception('Введите сообщение');
+				}
 
-			if ($post->save()) {
+				// Проверка длины заголовка
+				if ($this->_checkSubject($kasumi)) {
+					throw new \Phalcon\Exception('Заголовок слишком длинный');
+				}
+					
+				// Проходим проверку на спам
+				if ($this->_checkStoplist($shampoo)) {
+					throw new \Phalcon\Exception('Ой-ой, шалунишка');
+				}
 
+				// Проходим проверку скорость постинга
+				if (!$this->_checkLastPost()) {
+					throw new \Phalcon\Exception('Вы постите слишком быстро');
+				}
+
+				// Создаём пост
+				$post = new Post();
+				$post->setTransaction($transaction);
+				$post->type 		= 	$isThread 	? 'thread' : 'reply';
+				$post->parent 		= 	$parent;
+				$post->board 		= 	$board_slug;
+				$post->name			=	$name 		?? null;
+				$post->subject		=	$kasumi 	?? null;
+				$post->timestamp 	=	time();
+				$post->text			=	$shampoo 	?? null;
+				$post->userIp 		= 	$userIp;
+				$post->bump 		= 	$isThread 	? time() : 0;
+				$post->isSage 		= 	$isSage;
+
+				/**
+				 * Добавляем пост
+				 */
+				if (!$post->save()) {
+					$transaction->rollback('Пост не прошёл: ' . $post->getMessages()[0]);
+				}
+				
 				/**
 				 * Attach file
 				 */
-				if ($this->request->hasFiles() == true) {
-					return $this->_returnJson([ 'error' => 'Молодой человек, не для вас это сделанно' ]);
-					/*
-					$uploader = $this->_uploadFile();
+				if ($hasFile) {
+					$this->uploader->setRules([
+						'dynamic' 	=> $this->config->application->filesDir . $board_slug . '/',
+						'maxsize'   => 15240000,
+						'mimes'     => $this->config->site->allowedFiles->toArray(),
+						'hash_size' => 10,
+					]);
 
-					if ($uploader->isValid() === true) {
-							return $this->_returnJson([ 'error' => $uploader->getInfo()->filename]);
-						if ($uploader->move()) {
+					if ($this->uploader->isValid()) {
+
+						$this->uploader->move();
+
+						foreach ($this->uploader->getInfo() as $fileInfo) {
+
+							// Save model
 							$file = new File();
-							$file->slug			=	$uploader->getInfo()->filename;
-							$file->board 		=	$post->board;
-							$file->type			=	$uploader->getInfo()->extension;
-							$file->owner		=	$post->id;
-							$file->o_width 		= 	$uploader->getInfo()->size;
-							$file->o_height 	= 	$uploader->getInfo()->size;
+							$file->setTransaction($transaction);
+							$file->slug 	= $fileInfo['slug'];
+							$file->board 	= $post->board;
+							$file->type 	= $fileInfo['extension'];
+							$file->owner 	= $post->id;
+							$file->o_width 	= $fileInfo['width'];
+							$file->o_height = $fileInfo['height'];
 
-							if (!$file->save())
-								return $this->_returnJson([ 'error' => 'Файл не сохранился' ]);
-
-						} else {
-							$uploader->getErrors();
+							if (!$file->save()) {
+								$transaction->rollback('Файл не прошёл: '. $file->getMessages()[0]);
+								$this->uploader->truncate();
+							}
 						}
 					} else {
-						return $this->_returnJson([ 'error' => 'Файл не загрузился']);
-					}*/
+						$transaction->rollback($this->uploader->getErrors()[0]);
+					}
 				}
 
 				/**
 				 * Bump thread if needed
 				 */
-				if ($isPost) {
-					if (!$this->_bumpThread($post)) {
-						return $this->_returnJson([ 'error' => 'Тред не бампнут' ]);
-					}
+				if ($isPost && !$this->_bumpThread($post)) {
+					$transaction->rollback('Тред не бампнут');
 				}
-
 
 				/**
 				 * Trimmed thread after create thread
 				 */
-				if ($isThread) {
-					if (!$this->_trimThreads()) {
-						return $this->_returnJson([ 'error' => 'Треды не почистило' ]);
-					}
+				if ($isThread && !$this->_trimThreads()) {
+					$transaction->rollback('Треды не почистило');
 				}
 
 				/**
-				 * Redirect to thread after submit post
+				 * Все хорошо, работаем дальше
+				 */
+				$transaction->commit();
+
+				/**
+				 * Записываем время создания этого поста
+				 */
+				$this->session->set('lastPost', time());
+
+				/**
+				 * Refresh thread after new post
 				 */
 				if ($isPost) {
 					return $this->_returnJson([
-						'success' => 'Пост отправлен',
+						'success' => 'Post sent',
 						'refreshThread' => true
 					]);
 				}
 
+				/**
+				 * Redirect to thread after submit
+				 */
 				if ($isThread) {
 					return $this->_returnJson([
-						'success' => 'Тред создан, перенаправляю',
+						'success' => 'Thread created, redirect...',
 						'redirect' => $this->url->get([ 'for' => 'chan.thread.link', 'board' => $post->board, 'id' => $post->id ])
 					]);
 				}
-				
-			// Если не добавился пост
-			} else {
-				return $this->_returnJson([ 'error' => 'Очень странная ошибка' ]);
+
+			} catch (\Phalcon\Mvc\Model\Transaction\Failed $e) {
+				return $this->_returnJson([ 'error' => $e->getMessage() ]);
+			} catch (\Phalcon\Exception $e) {
+				return $this->_returnJson([ 'error' => $e->getMessage() ]);
 			}
-			
 		}
 		return $this->_redirectHome();
 	}
@@ -198,9 +241,9 @@ class ChanController extends ControllerBase
 		if (!$this->board)
 			return $this->_returnNotFound();
 			
+		$currentPage = $this->dispatcher->getParam('page', 'int', 1);
+		
 		// Поиск тредов
-		$currentPage =  $this->dispatcher->getParam('page', 'int');
-		if ($currentPage <= 0) $currentPage = 1;
 		$threads = Post::find(
 			[ 'type = "thread" and board = :board:', 'order' => 'isSticky DESC, bump DESC', 'bind' => [
 				'board' => $this->board->slug
@@ -310,40 +353,54 @@ class ChanController extends ControllerBase
 
 
 
-
-
-
-	private function _uploadFile()
+	/**
+	 * Check subject ssize
+	 * @param  string $kasumi Post subject
+	 * @return bool
+	 */
+	private function _checkSubject($kasumi)
 	{
-		$uploader = $this->di->get('uploader');
-
-		// setting up uloader rules
-		$uploader->setRules([
-			'directory' =>  $this->config->application->filesDir,
-			'minsize'   =>  1000,   // bytes
-			'maxsize'   =>  1000000,// bytes
-			'mimes'     =>  $this->config->site->allowedFiles,
-
-			'sanitize' 	=> true,
-			'hash'     	=> 'md5'
-		]);
-	
-		return $uploader;
+		return iconv_strlen($kasumi) >= $this->config->site->subjectLimit;
 	}
-	private function _checkSpam($text)
+
+	/**
+	 * Check message to spam
+	 * @param  string $text User message
+	 * @return bool
+	 */
+	private function _checkStoplist($text)
 	{
-		// Собираем все плохие сслова
+		// Собираем все плохие слова
 		$stoplist = Stoplist::find();
 
 		// Проходимся по ним
 		foreach ($stoplist as $badword) {
 			if (stripos($text, $badword->word) !== false) {
-				// if ($badword->ban) $this->ban->add();
 				return true;
 			}
 		}
 		return false;
 	}
+
+	/**
+	 * Проверка разницы времени последнего поста
+	 * @return bool
+	 */
+	private function _checkLastPost()
+	{
+		if (!$this->session->has('lastPost')) return true;
+
+		if ((time() - $this->session->get('lastPost')) >= $this->config->site->timeLimit)
+			return true;
+		else
+			return false;
+	}
+
+	/**
+	 * Bump thread
+	 * @param  object $post User post
+	 * @return bool
+	 */
 	private function _bumpThread($post)
 	{
 		$thread = Post::findFirst(
@@ -360,6 +417,12 @@ class ChanController extends ControllerBase
 		}
 		return true;
 	}
+
+	/**
+	 * Trim threads
+	 * Не работает на данный момент
+	 * @return bool
+	 */
 	private function _trimThreads()
 	{
 		return true;

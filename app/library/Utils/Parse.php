@@ -3,7 +3,7 @@ namespace Phalcon\Utils;
 
 use \Phalcon\Mvc\User\Component;
 use \Phalcon\Tag;
-use \Chan\Models\Chan;
+use \Chan\Models\Board;
 use \Chan\Models\Post;
 
 class Parse extends Component {
@@ -66,7 +66,7 @@ class Parse extends Component {
 
 		$lastchar = '';
 		// If the quote ends with a , or -, cut it off.
-		if(substr($matches[0], -1) == "," || substr($matches[0], -1) == "-") {
+		if (substr($matches[0], -1) == "," || substr($matches[0], -1) == "-") {
 			$lastchar = substr($matches[0], -1);
 			$matches[1] = substr($matches[1], 0, -1);
 			$matches[0] = substr($matches[0], 0, -1);
@@ -78,11 +78,13 @@ class Parse extends Component {
 			]
 		);
 
-		if ( $post )
+		if ($post)
 			$link = Tag::linkTo([
 				$this->url->get([ 'for' => 'chan.thread.link', 'board' => $post->board, 'id' => ($post->parent == 0 ? $post->id : $post->parent) ]).'#'.$post->id,
 				'&gt;&gt;' . $post->id,
-				'class' => ($post->parent == 0 ? 'op_post' : '')
+				'class' => ($post->parent == 0 ? 'op_post' : ''),
+				'data-reflink' => 'true'
+
 			]);
 		else
 			$link = '&gt;&gt;' . $matches[1];
@@ -93,7 +95,7 @@ class Parse extends Component {
 	function InterPostLinkCallback($matches) {
 		$lastchar = '';
 		// If the quote ends with a , or -, cut it off.
-		if(substr($matches[0], -1) == "," || substr($matches[0], -1) == "-") {
+		if (substr($matches[0], -1) == "," || substr($matches[0], -1) == "-") {
 			$lastchar = substr($matches[0], -1);
 			$matches[1] = substr($matches[1], 0, -1);
 			$matches[0] = substr($matches[0], 0, -1);
@@ -105,11 +107,13 @@ class Parse extends Component {
 			]
 		);
 
-		if ( $post )
+		if ($post)
 			$link = Tag::linkTo([
 				$this->url->get([ 'for' => 'chan.thread.link', 'board' => $post->board, 'id' => ($post->parent == 0 ? $post->id : $post->parent) ]).'#'.$post->id,
 				'&gt;&gt;' . '/' . $post->board . '/' . $post->id,
-				'class' => ($post->parent == 0 ? 'op_post' : '')
+				'class' => ($post->parent == 0 ? ' op_post' : ''),
+				'data-reflink' => 'true'
+
 			]);
 		else
 			$link = '&gt;&gt;' . '/' . $matches[1] . '/' . $matches[2];
@@ -126,7 +130,7 @@ class Parse extends Component {
 			$matches[0] = substr($matches[0], 0, -1);
 		}
 		
-		$board = Chan::findFirst(
+		$board = Board::findFirst(
 			[ 'slug = :slug:',
 				'bind' => [ 'slug' => $matches[1]]
 			]
@@ -150,6 +154,7 @@ class Parse extends Component {
 			'`\*\*(.+?)\*\*`is',
 			'`\*(.+?)\*`is',
 			'`\_\_(.+?)\_\_`is', 
+			'`\-\-(.+?)\-\-`is',
 			'`\%\%(.+?)\%\%`is',
 			
 			'`\[b\](.+?)\[/b\]`is', 
@@ -162,6 +167,7 @@ class Parse extends Component {
 			'<b>\\1</b>', 
 			'<i>\\1</i>',
 			'<span class="underline">\\1</span>',
+			'<strike>\\1</strike>', 
 			'<span class="spoiler">\\1</span>', 
 			
 			'<b>\\1</b>', 

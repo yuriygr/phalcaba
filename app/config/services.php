@@ -13,10 +13,10 @@ $di->setShared('config', $config);
 /**
  * Include the application routes
  */
-$di->set('router', function() {
+$di->set('router', function() use ($config) {
 	$router = new \Phalcon\Mvc\Router(false);
 	$router->removeExtraSlashes(false);
-	include(APP_DIR . '/config/routes.php');
+	include($config->application->configDir . '/routes.php');
 	return $router;
 });
 
@@ -39,30 +39,35 @@ $di->set('view', function() use ($config) {
 	// Устанавливаем директорию с шаблонами по умочанию
 	$view->setViewsDir($config->application->viewsDir);
 
-	$view->registerEngines(array(
+	$view->registerEngines([
 		'.volt' => function($view, $di) use ($config) {
 			$volt = new \Phalcon\Mvc\View\Engine\Volt($view, $di);
-			$volt->setOptions(array(
+			$volt->setOptions([
 				'compiledPath' => $config->application->cacheDir . 'volt/',
 				'compiledSeparator' => '_',
-			));
+			]);
 			return $volt;
 		},
 		'.phtml' => 'Phalcon\Mvc\View\Engine\Php' // Generate Template files uses PHP itself as the template engine
-	));
+	]);
 	return $view;
 });
 
 /**
  * Database connection is created based in the parameters defined in the configuration file
  */
-$di->set('db', function() use ($config) {
+$di->setShared('db', function() use ($config) {
 	return new \Phalcon\Db\Adapter\Pdo\Mysql([
 		'host'		=> $config->database->host,
 		'username'	=> $config->database->username,
 		'password'	=> $config->database->password,
 		'dbname' 	=> $config->database->name,
-		'charset'	=> $config->database->charset
+		'charset'	=> $config->database->charset,
+		'options'	=> [
+			 \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+			 \PDO::ATTR_PERSISTENT => true,
+			 \PDO::ATTR_AUTOCOMMIT => false
+		]
 	]);
 });
 
@@ -74,11 +79,11 @@ $di->set('db', function() use ($config) {
 		'metaDataDir' => $config->application->cacheDir . 'metaData/'
 	));
 	return new \Phalcon\Mvc\Model\Metadata\Redis([
-		'host' 			=> '127.0.0.1',
-		'port' 			=> 6379,
+		'host' 			=> $config->redis->host,
+		'port' 			=> $config->redis->port,
 		'persistent' 	=> 0,
 		'statsKey' 		=> '_PHCM_MM',
-		'lifetime' 		=> 172800
+		'lifetime' 		=> $config->redis->lifetime
 	]);
 });*/
 
@@ -105,25 +110,6 @@ $di->set('request', function() {
 });
 
 /**
- * Register the flash service with custom CSS classes
- */
-$di->set('flash', function() {
-	return new \Phalcon\Flash\Direct([
-		'error' => 'alert error',
-		'success' => 'alert success',
-		'notice' => 'alert info',
-	]);
-});
-/* And Session Flas */
-$di->set('flashSession', function() {
-	return new \Phalcon\Flash\Session([
-		'error' => 'alert error',
-		'success' => 'alert success',
-		'notice' => 'alert info',
-	]);
-});
-
-/**
  * Start the session the first time some component request the session service
  */
 $di->set('session', function() use ($config) {
@@ -141,6 +127,7 @@ $di->set('session', function() use ($config) {
 	return $session;
 });
 
+
 /**
  * WakabaMark parser
  */
@@ -149,22 +136,34 @@ $di->set('parse', function() {
 	return $parse;
 });
 
+/**
+ * File uploader and thumb creater
+ */
+$di->set('uploader', function() {
+	return new \Phalcon\Utils\Uploader\Uploader();
+});
+
+/**
+ * Assets manager and default settings
+ */
 $di->set('assets', function() {
 	$assets = new \Phalcon\NAssets();
+	
 	// JS
 	$assets
 		 ->collection('app-js')
 		 ->addJs('static/js/jquery-3.1.1.min.js')
 		 ->addJs('static/js/jquery.core.js')
+		 ->addJs('static/js/jquery.store.js')
 		 ->addJs('static/js/jquery.attachFile.js')
+		 ->addJs('static/js/jquery.magnific-popup.min.js')
 		 ->addJs('static/js/jquery.ambiance.js')
 		 ->addJs('static/js/main.js')
-/*
+		/*
 		 ->setTargetPath('static/app.js')
 		 ->setTargetUri('static/app.js')
 		 ->join(true)
 		 ->addFilter(new \Phalcon\Assets\Filters\Jsmin())*/;
-
 
 	// Fonts
 	$assets
@@ -176,7 +175,8 @@ $di->set('assets', function() {
 		 ->collection('app-css')
 		 ->addCss('static/css/reset.css')
 		 ->addCss('static/css/style.css')
-/*
+		 ->addCss('static/css/magnific-popup.css')
+		/*
 		 ->setTargetPath('static/app.css')
 		 ->setTargetUri('static/app.css')
 		 ->join(true)
@@ -185,6 +185,9 @@ $di->set('assets', function() {
 	return $assets;
 });
 
+/**
+ * Security
+ */
 $di->set('security', function () {
 	$security = new \Phalcon\Security();
 	$security->setWorkFactor(12);
@@ -214,8 +217,7 @@ $di->set('auth', function() {
 	return new \Phalcon\Authorization();
 });
 
-$di->set('uploader', function() {
-	return new \Phalcon\ChanUploader();
-});
 
-\Phalcon\Mvc\Model::setup([ 'notNullValidations' => true ]);
+\Phalcon\Mvc\Model::setup([
+	'notNullValidations' => true
+]);

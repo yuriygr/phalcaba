@@ -20,6 +20,7 @@ class PageController extends ControllerBase
 		$this->view->setVars([
 			'slogan'  => $slogan
 		]);
+
 	}
 
 	public function show404Action()

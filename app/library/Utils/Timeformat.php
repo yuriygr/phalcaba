@@ -4,9 +4,13 @@ namespace Phalcon\Utils;
 
 class Timeformat
 {
-	/*
-	 * $datatime Переменная содержащая Сегодня/Вчера/Полную дату
-	 * $postMinute Тупо дописывается после всего дерьма
+	/**
+	 * Генерация красивого времени из timestamp
+	 * @var $datatime Переменная содержащая Сегодня/Вчера/Полную дату
+	 * @var $postMinute Тупо дописывается после всего дерьма
+	 *
+	 * @param  int $timestamp
+	 * @return string
 	 */
 	public static function generate($timestamp)
 	{	
@@ -42,10 +46,23 @@ class Timeformat
 		return $datetime.$postMinute;
 	}
 
+	/**
+	 * Создание даты в формате человкочитаемом из timestamp
+	 *
+	 * @param  int $timestamp
+	 * @return string
+	 */
 	public static function normal($timestamp)
 	{
 		return date("d.m.Y H:i", $timestamp);
 	}
+	
+	/**
+	 * Создание даты в формате ATOM из timestamp
+	 *
+	 * @param  int $timestamp
+	 * @return string
+	 */
 	public static function atom($timestamp)
 	{
 		return date(DATE_ATOM, $timestamp);

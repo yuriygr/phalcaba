@@ -4,10 +4,15 @@ namespace Phalcon\Utils;
 
 class Tripcode
 {
-
-	public static function generate($post_name) {
-
-		if(preg_match("/(#|!)(.*)/", $post_name, $regs)){
+	/**
+	 * Kusaba X code
+	 *
+	 * @param  string $post_name Имя с ключём трипкода
+	 * @return string            Трипкод
+	 */
+	public static function generate($post_name)
+	{
+		if (preg_match("/(#|!)(.*)/", $post_name, $regs)) {
 			$cap = $regs[2];
 			$cap_full = '#' . $regs[2];
 
